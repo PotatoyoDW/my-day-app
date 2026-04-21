@@ -122,6 +122,27 @@
     }
     .btn-add-toggle:active { border-color: var(--primary); color: var(--primary); }
 
+    /* ── Manual time input ── */
+    .manual-time-form {
+      margin-top: 10px; padding: 10px 12px;
+      background: var(--bg); border-radius: 8px;
+      border: 1.5px dashed var(--border);
+    }
+    .manual-time-row {
+      display: flex; gap: 10px; margin-bottom: 8px;
+    }
+    .manual-time-row label {
+      font-size: 12px; color: var(--subtext); font-weight: 600;
+      display: flex; flex-direction: column; gap: 4px; flex: 1;
+    }
+    .manual-time-row input[type="time"] {
+      border: 1.5px solid var(--border); border-radius: 6px;
+      padding: 7px 8px; font-size: 15px; font-weight: 700;
+      color: var(--text); background: white; outline: none; width: 100%;
+    }
+    .manual-time-row input[type="time"]:focus { border-color: var(--primary); }
+    .btn-time { background: #F3E8FF; color: #6C5EB5; font-size: 16px; padding: 9px 12px; }
+
     /* ── Block section ── */
     .block-section { margin-bottom: 16px; }
     .block-header { display: flex; align-items: center; gap: 6px; padding: 4px 2px; margin-bottom: 6px; }
@@ -434,6 +455,7 @@ const S = {
   taskSource: '',   // 'claude' | 'template'
   taskStatus: {},   // { id: { status, startTime, endTime, actualMinutes } }
   timers: {},       // { id: intervalId }
+  manualInput: {},  // { id: true } 手動時刻入力フォームが開いているカード
   habits: {},
   rating: 0,
   goalsLoaded: false,
@@ -623,9 +645,22 @@ function cardHTML(task) {
   }
 
   let actions = '';
-  if      (st.status === 'idle')    actions = `<button class="btn btn-start" onclick="startTask('${id}')">▶ スタート</button><button class="btn btn-skip" onclick="skipTask('${id}')">スキップ</button>`;
+  if      (st.status === 'idle')    actions = `<button class="btn btn-start" onclick="startTask('${id}')">▶ スタート</button><button class="btn btn-skip" onclick="skipTask('${id}')">スキップ</button><button class="btn btn-time" onclick="toggleManualInput('${id}',${est})" title="時刻を手入力">⏱</button>`;
   else if (st.status === 'running') actions = `<button class="btn btn-done" onclick="completeTask('${id}',${est})">✓ 完了</button>`;
   else                              actions = `<button class="btn btn-undo" onclick="undoTask('${id}')">↩ 戻す</button>`;
+
+  // 手動時刻入力フォーム（⏱ボタンを押したとき）
+  const nowD = new Date();
+  const defEnd   = fmtTime(nowD);
+  const defStart = fmtTime(new Date(nowD.getTime() - est * 60000));
+  const manualForm = (S.manualInput[id] && st.status === 'idle') ? `
+    <div class="manual-time-form">
+      <div class="manual-time-row">
+        <label>開始時刻<input type="time" id="mstart-${id}" value="${defStart}"></label>
+        <label>終了時刻<input type="time" id="mend-${id}" value="${defEnd}"></label>
+      </div>
+      <button class="btn btn-done" style="width:100%;justify-content:center" onclick="manualCompleteTask('${id}',${est})">✓ 記録する</button>
+    </div>` : '';
 
   // サブタスク（[SUB]形式のメモから生成）
   const subItems = parseSubTasks(task);
@@ -649,6 +684,7 @@ function cardHTML(task) {
     ${subHtml}
     ${timerHtml}${actHtml}
     <div class="task-actions">${actions}</div>
+    ${manualForm}
   </div>`;
 }
 
@@ -746,6 +782,57 @@ function updateProgress() {
 
 function saveStatusLocal() {
   localStorage.setItem('taskStatus_' + S.today, JSON.stringify(S.taskStatus));
+}
+
+// ============================================================
+// 手動時刻入力（スタート押し忘れ対応）
+// ============================================================
+function toggleManualInput(id, est) {
+  if (S.manualInput[id]) {
+    delete S.manualInput[id];
+  } else {
+    S.manualInput[id] = true;
+  }
+  reRenderCard(id);
+}
+
+function manualCompleteTask(id, est) {
+  const startVal = document.getElementById('mstart-' + id)?.value;
+  const endVal   = document.getElementById('mend-'   + id)?.value;
+  if (!startVal || !endVal) { showToast('開始・終了時刻を入力してください'); return; }
+
+  // 実績時間を計算
+  const [sh, sm] = startVal.split(':').map(Number);
+  const [eh, em] = endVal.split(':').map(Number);
+  let actual = (eh * 60 + em) - (sh * 60 + sm);
+  if (actual <= 0) actual += 24 * 60; // 日をまたいだ場合
+
+  S.taskStatus[id] = {
+    status: 'done',
+    startTime: startVal,
+    endTime:   endVal,
+    actualMinutes: actual
+  };
+  delete S.manualInput[id];
+  saveStatusLocal();
+  reRenderCard(id);
+  updateProgress();
+
+  // APIに保存
+  const task = S.tasks.find(t => t['タスクID'] === id);
+  if (task) {
+    apiPost({
+      action: 'saveTaskLog',
+      date: S.today, dayType: S.dayType,
+      taskId: id, taskName: task['タスク名'], category: task['カテゴリ'] || '',
+      startTime: startVal, endTime: endVal,
+      estimatedMinutes: est, completed: true
+    }).catch(() => {});
+  }
+
+  if (actual > est * 1.4 && est > 0) {
+    setTimeout(() => showToast(`実績 ${actual}分（見積より${actual - est}分多め）記録しました`), 300);
+  }
 }
 
 // ============================================================
@@ -853,11 +940,16 @@ async function importClaudePlan() {
     document.getElementById('claudeJsonInput').value = '';
     btn.textContent = '取り込む'; btn.disabled = false;
 
-    showToast(`✅ ${result.count}件のタスクを取り込みました`);
+    if (result.error) {
+      showToast('APIエラー: ' + result.error);
+      btn.textContent = '取り込む'; btn.disabled = false;
+      return;
+    }
+    showToast(`✅ ${result.count ?? tasks.length}件のタスクを取り込みました`);
     loadTasks();
   } catch (e) {
     btn.textContent = '取り込む'; btn.disabled = false;
-    showToast('取り込みに失敗しました');
+    showToast('取り込みに失敗しました: ' + e.message);
   }
 }
 
