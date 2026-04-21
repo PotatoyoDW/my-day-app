@@ -293,14 +293,9 @@
   <!-- 今日 -->
   <div id="tab-today" class="tab-pane active">
     <div id="suggestionArea"></div>
-    <div id="taskListArea">
-      <div class="empty-state">
-        <div class="e">☀️</div>
-        <p>日タイプを選択すると<br>今日のタスクが表示されます</p>
-      </div>
-    </div>
-    <!-- タスク追加エリア（タスク読み込み後に表示） -->
-    <div id="addTaskArea" style="display:none; padding-bottom:8px">
+
+    <!-- ① この日だけのタスクを追加（上部） -->
+    <div id="addTaskArea" style="display:none; margin-bottom:4px">
       <div id="addTaskPanel" class="add-task-panel">
         <div class="section-label" style="margin-bottom:10px">この日だけのタスクを追加</div>
         <div class="add-task-row">
@@ -324,6 +319,26 @@
         </div>
       </div>
       <button class="btn-add-toggle" id="addTaskToggle" onclick="toggleAddPanel()">＋ この日だけのタスクを追加</button>
+    </div>
+
+    <!-- ② Claudeプランを取り込む -->
+    <div id="claudeImportArea" style="display:none; margin-bottom:8px">
+      <div id="claudeImportPanel" class="add-task-panel">
+        <div class="section-label" style="margin-bottom:8px">✨ Claudeプランを取り込む</div>
+        <textarea id="claudeJsonInput" class="journal-textarea" style="min-height:80px; font-size:12px; font-family:monospace" placeholder="ClaudeからもらったタスクのJSONをここに貼り付けてください"></textarea>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" id="importBtn" style="flex:1;justify-content:center" onclick="importClaudePlan()">取り込む</button>
+          <button class="btn btn-undo" onclick="toggleImportPanel()">キャンセル</button>
+        </div>
+      </div>
+      <button class="btn-add-toggle" id="claudeImportToggle" onclick="toggleImportPanel()" style="border-color:#C5B8FA; color:#6C5EB5">✨ Claudeプランを取り込む</button>
+    </div>
+
+    <div id="taskListArea">
+      <div class="empty-state">
+        <div class="e">☀️</div>
+        <p>日タイプを選択すると<br>今日のタスクが表示されます</p>
+      </div>
     </div>
   </div>
 
@@ -492,6 +507,10 @@ function onDayTypeChange() {
 // タスク読み込み（Claudeプランを優先、なければテンプレート）
 // ============================================================
 async function loadTasks() {
+  // 上部ボタンを早めに表示
+  document.getElementById('addTaskArea').style.display = 'block';
+  document.getElementById('claudeImportArea').style.display = 'block';
+
   document.getElementById('taskListArea').innerHTML =
     '<div class="loading"><div class="spinner"></div><span>読み込み中…</span></div>';
   try {
@@ -576,9 +595,6 @@ function renderTasks() {
   });
 
   document.getElementById('taskListArea').innerHTML = html;
-
-  // タスク追加ボタンを表示
-  document.getElementById('addTaskArea').style.display = 'block';
 }
 
 function cardHTML(task) {
@@ -793,6 +809,58 @@ function toggleAddPanel() {
   if (isOpen) setTimeout(() => document.getElementById('addTaskName').focus(), 100);
 }
 
+// ============================================================
+// Claudeプランの取り込み
+// ============================================================
+function toggleImportPanel() {
+  const panel  = document.getElementById('claudeImportPanel');
+  const btn    = document.getElementById('claudeImportToggle');
+  const isOpen = panel.classList.toggle('open');
+  btn.textContent = isOpen ? '✕ 閉じる' : '✨ Claudeプランを取り込む';
+  if (isOpen) setTimeout(() => document.getElementById('claudeJsonInput').focus(), 100);
+}
+
+async function importClaudePlan() {
+  const text = document.getElementById('claudeJsonInput').value.trim();
+  if (!text) { showToast('JSONを貼り付けてください'); return; }
+
+  let tasks;
+  try {
+    const parsed = JSON.parse(text);
+    // 配列そのまま、または { tasks: [...] } 形式の両方に対応
+    tasks = Array.isArray(parsed) ? parsed : (parsed.tasks || []);
+    if (!tasks.length) throw new Error('タスクが見つかりません');
+  } catch (e) {
+    showToast('JSONの形式が正しくありません');
+    return;
+  }
+
+  const btn = document.getElementById('importBtn');
+  btn.textContent = '取り込み中…'; btn.disabled = true;
+
+  try {
+    const result = await apiPost({
+      action: 'saveTodayTasks',
+      date: S.today,
+      dayType: S.dayType,
+      clearExisting: true,
+      tasks: tasks
+    });
+
+    // パネルを閉じてリロード
+    document.getElementById('claudeImportPanel').classList.remove('open');
+    document.getElementById('claudeImportToggle').textContent = '✨ Claudeプランを取り込む';
+    document.getElementById('claudeJsonInput').value = '';
+    btn.textContent = '取り込む'; btn.disabled = false;
+
+    showToast(`✅ ${result.count}件のタスクを取り込みました`);
+    loadTasks();
+  } catch (e) {
+    btn.textContent = '取り込む'; btn.disabled = false;
+    showToast('取り込みに失敗しました');
+  }
+}
+
 function confirmAddTask() {
   const name = document.getElementById('addTaskName').value.trim();
   if (!name) { showToast('タスク名を入力してください'); return; }
@@ -992,4 +1060,3 @@ function showToast(msg) {
 </script>
 </body>
 </html>
-
