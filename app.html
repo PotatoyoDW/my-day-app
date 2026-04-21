@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="My Day">
+  <title>My Day</title>
+  <style>
+    :root {
+      --primary: #5C7CFA;
+      --success: #40C057;
+      --warning: #FD7E14;
+      --bg: #F0F2F5;
+      --card: #FFFFFF;
+      --text: #1A1A2E;
+      --subtext: #6C757D;
+      --border: #E9ECEF;
+      --tab-h: 62px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+      background: var(--bg); color: var(--text);
+      height: 100vh; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .app-header {
+      background: white; padding: 12px 14px 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08); z-index: 100;
+    }
+    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .date-display { font-size: 18px; font-weight: 700; }
+    .day-type-selector {
+      background: #EEF2FF; border: none; border-radius: 8px;
+      padding: 6px 10px; font-size: 13px; font-weight: 600;
+      color: var(--primary); cursor: pointer; max-width: 160px;
+    }
+    .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .progress-fill {
+      height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--primary), #74C0FC);
+      transition: width .4s ease;
+    }
+    .progress-text { font-size: 11px; color: var(--subtext); margin-top: 3px; text-align: right; }
+
+    /* ── Scroll area ── */
+    .tab-content { flex: 1; overflow-y: auto; padding-bottom: var(--tab-h); -webkit-overflow-scrolling: touch; }
+    .tab-pane { display: none; padding: 12px; }
+    .tab-pane.active { display: block; }
+
+    /* ── Suggestion banner ── */
+    .suggestion-banner {
+      background: #FFF9C4; border: 1px solid #FFE082;
+      border-radius: 12px; padding: 12px 14px;
+      margin-bottom: 12px; display: flex; gap: 10px; align-items: flex-start;
+    }
+    .suggestion-banner .ico { font-size: 20px; flex-shrink: 0; }
+    .suggestion-banner p { font-size: 13px; line-height: 1.55; color: #5D4037; }
+
+    /* ── Block section ── */
+    .block-section { margin-bottom: 16px; }
+    .block-header { display: flex; align-items: center; gap: 6px; padding: 4px 2px; margin-bottom: 6px; }
+    .block-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .block-label { font-size: 12px; font-weight: 700; color: var(--subtext); text-transform: uppercase; letter-spacing: .5px; }
+
+    /* ── Task card ── */
+    .task-card {
+      background: white; border-radius: 12px; padding: 13px 14px;
+      margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      border-left: 4px solid transparent; transition: opacity .2s;
+    }
+    .task-card.required  { border-left-color: var(--primary); }
+    .task-card.running   { border-left-color: var(--warning); background: #FFF8F0; }
+    .task-card.done      { opacity: .55; background: #F8F9FA; }
+    .task-card.skipped   { opacity: .45; }
+
+    .task-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .task-name { font-size: 15px; font-weight: 600; flex: 1; margin-right: 8px; line-height: 1.35; }
+    .task-name.done-text { text-decoration: line-through; color: var(--subtext); }
+    .task-est {
+      font-size: 12px; color: var(--subtext); background: var(--bg);
+      padding: 3px 8px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+    }
+    .timer-display {
+      font-size: 24px; font-weight: 800; color: var(--warning);
+      font-variant-numeric: tabular-nums; margin-bottom: 8px; letter-spacing: 1px;
+    }
+    .actual-display { font-size: 13px; margin-bottom: 8px; font-weight: 600; }
+    .actual-ok   { color: var(--success); }
+    .actual-over { color: var(--warning); }
+    .actual-skip { color: var(--subtext); }
+
+    .task-actions { display: flex; gap: 8px; }
+    .btn {
+      border: none; border-radius: 8px; padding: 9px 14px;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: 5px;
+      transition: transform .1s; user-select: none;
+    }
+    .btn:active { transform: scale(.96); }
+    .btn-start  { background: var(--warning); color: white; flex: 1; justify-content: center; }
+    .btn-done   { background: var(--success); color: white; flex: 1; justify-content: center; }
+    .btn-skip   { background: var(--border);  color: var(--subtext); }
+    .btn-undo   { background: transparent; border: 1.5px solid var(--border); color: var(--subtext); }
+    .btn-primary{ background: var(--primary); color: white; }
+
+    /* ── Bottom nav ── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: var(--tab-h); background: white;
+      display: flex; border-top: 1px solid var(--border);
+      box-shadow: 0 -2px 8px rgba(0,0,0,.06); z-index: 100;
+    }
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 3px;
+      cursor: pointer; color: var(--subtext); transition: color .15s; user-select: none;
+    }
+    .nav-item.active { color: var(--primary); }
+    .nav-icon  { font-size: 22px; }
+    .nav-label { font-size: 10px; font-weight: 700; }
+
+    /* ── Habits tab ── */
+    .habit-card {
+      background: white; border-radius: 12px; padding: 14px 16px;
+      margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      display: flex; align-items: center; gap: 14px; cursor: pointer;
+    }
+    .habit-check {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 2.5px solid var(--border); display: flex;
+      align-items: center; justify-content: center;
+      font-size: 16px; transition: all .2s; flex-shrink: 0;
+    }
+    .habit-check.checked { background: var(--success); border-color: var(--success); color: white; }
+    .habit-name { font-size: 15px; font-weight: 600; }
+    .habit-sub  { font-size: 12px; color: var(--subtext); margin-top: 2px; }
+
+    /* ── Journal tab ── */
+    .section-label { font-size: 12px; font-weight: 700; color: var(--subtext); margin-bottom: 8px; letter-spacing: .5px; text-transform: uppercase; }
+    .input-row { display: flex; gap: 10px; margin-bottom: 12px; }
+    .input-group { flex: 1; background: white; border-radius: 10px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    .input-lbl  { font-size: 12px; color: var(--subtext); margin-bottom: 4px; }
+    .input-field { width: 100%; border: none; background: transparent; font-size: 16px; font-weight: 600; color: var(--text); outline: none; }
+    .rating-row { display: flex; gap: 8px; justify-content: center; margin: 10px 0 16px; }
+    .rating-btn {
+      width: 50px; height: 50px; border-radius: 12px; border: 2px solid var(--border);
+      background: white; font-size: 20px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: all .15s;
+    }
+    .rating-btn.selected { border-color: var(--primary); background: #EEF2FF; transform: scale(1.1); }
+    .journal-textarea {
+      width: 100%; min-height: 130px; border: none; background: white;
+      border-radius: 12px; padding: 14px; font-size: 15px; line-height: 1.6;
+      color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      resize: none; font-family: inherit; outline: none; margin-bottom: 12px;
+    }
+    .btn-full {
+      width: 100%; padding: 15px; border-radius: 12px; border: none;
+      font-size: 15px; font-weight: 800; background: var(--primary);
+      color: white; cursor: pointer; transition: all .15s;
+    }
+    .btn-full:active { transform: scale(.98); }
+    .btn-full.ok { background: var(--success); }
+    .btn-full:disabled { opacity: .6; }
+
+    /* ── Goals tab ── */
+    .goal-card {
+      background: white; border-radius: 12px; padding: 16px;
+      margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .goal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .goal-name     { font-size: 15px; font-weight: 700; }
+    .goal-category { font-size: 12px; color: var(--subtext); margin-top: 2px; }
+    .goal-pct      { font-size: 22px; font-weight: 900; color: var(--primary); }
+    .goal-bar { height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+    .goal-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #74C0FC); border-radius: 4px; transition: width .5s ease; }
+    .goal-meta { font-size: 12px; color: var(--subtext); margin-bottom: 10px; }
+    .goal-update { display: flex; gap: 8px; }
+    .goal-input {
+      flex: 1; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 9px 12px; font-size: 15px; font-weight: 600;
+      color: var(--text); outline: none; background: var(--bg);
+    }
+    .goal-input:focus { border-color: var(--primary); }
+
+    /* ── Misc ── */
+    .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; color: var(--subtext); gap: 12px; }
+    .spinner { width: 30px; height: 30px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--subtext); }
+    .empty-state .e  { font-size: 44px; margin-bottom: 10px; }
+    .empty-state p   { font-size: 14px; line-height: 1.6; }
+
+    .toast {
+      position: fixed; bottom: calc(var(--tab-h) + 14px); left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: #1A1A2E; color: white; padding: 10px 20px;
+      border-radius: 20px; font-size: 13px; font-weight: 600;
+      opacity: 0; transition: all .3s; pointer-events: none; z-index: 200; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- ========== Header ========== -->
+<header class="app-header">
+  <div class="header-top">
+    <div class="date-display" id="dateDisplay">—</div>
+    <select class="day-type-selector" id="dayTypeSelect" onchange="onDayTypeChange()">
+      <option value="">日タイプを選択</option>
+      <option value="出勤日">🏢 出勤日</option>
+      <option value="在宅勤務日">🏠 在宅勤務日</option>
+      <option value="休日（自宅）">🛋️ 休日（自宅）</option>
+      <option value="休日（外出）">🌳 休日（外出）</option>
+      <option value="出張・研修">✈️ 出張・研修</option>
+    </select>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="progress-text" id="progressText">日タイプを選択してください</div>
+</header>
+
+<!-- ========== Tab content ========== -->
+<div class="tab-content">
+
+  <!-- 今日 -->
+  <div id="tab-today" class="tab-pane active">
+    <div id="suggestionArea"></div>
+    <div id="taskListArea">
+      <div class="empty-state">
+        <div class="e">☀️</div>
+        <p>日タイプを選択すると<br>今日のタスクが表示されます</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 習慣 -->
+  <div id="tab-habits" class="tab-pane">
+    <div id="habitListArea"></div>
+    <div style="padding: 4px 0 12px">
+      <button class="btn-full" id="saveHabitsBtn" onclick="saveHabits()">習慣を保存する</button>
+    </div>
+  </div>
+
+  <!-- 記録 -->
+  <div id="tab-journal" class="tab-pane">
+    <div class="input-row">
+      <div class="input-group">
+        <div class="input-lbl">⚖️ 体重（kg）</div>
+        <input type="number" class="input-field" id="weightInput" placeholder="52.3" step="0.1">
+      </div>
+      <div class="input-group">
+        <div class="input-lbl">⏰ 起床時刻</div>
+        <input type="time" class="input-field" id="wakeTimeInput">
+      </div>
+    </div>
+    <div class="section-label">今日の評価</div>
+    <div class="rating-row" id="ratingRow">
+      <button class="rating-btn" onclick="selectRating(1)" data-r="1">😓</button>
+      <button class="rating-btn" onclick="selectRating(2)" data-r="2">😐</button>
+      <button class="rating-btn" onclick="selectRating(3)" data-r="3">🙂</button>
+      <button class="rating-btn" onclick="selectRating(4)" data-r="4">😊</button>
+      <button class="rating-btn" onclick="selectRating(5)" data-r="5">🌟</button>
+    </div>
+    <div class="section-label">ジャーナル</div>
+    <textarea class="journal-textarea" id="journalText" placeholder="今日はどうでしたか？できたこと、気づいたこと、なんでも…"></textarea>
+    <button class="btn-full" id="saveJournalBtn" onclick="saveJournal()">保存する</button>
+  </div>
+
+  <!-- ゴール -->
+  <div id="tab-goals" class="tab-pane">
+    <div id="goalListArea">
+      <div class="loading"><div class="spinner"></div><span>読み込み中…</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ========== Bottom nav ========== -->
+<nav class="bottom-nav">
+  <div class="nav-item active" id="nav-today"   onclick="switchTab('today')">  <div class="nav-icon">📅</div><div class="nav-label">今日</div></div>
+  <div class="nav-item"        id="nav-habits"  onclick="switchTab('habits')"> <div class="nav-icon">✅</div><div class="nav-label">習慣</div></div>
+  <div class="nav-item"        id="nav-journal" onclick="switchTab('journal')"><div class="nav-icon">📝</div><div class="nav-label">記録</div></div>
+  <div class="nav-item"        id="nav-goals"   onclick="switchTab('goals')">  <div class="nav-icon">🎯</div><div class="nav-label">ゴール</div></div>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// 設定
+// ============================================================
+const API_URL = 'https://script.google.com/a/macros/potatoyo.com/s/AKfycby6OI1jCYX93sduPGLPKEXiP94G8PjFoUSuDOZFB56lk8-Obywl5OWqx5sAM5Rs0-YVZg/exec';
+
+const BLOCK_CFG = {
+  '朝':    { color: '#FFD43B', emoji: '🌅' },
+  '昼':    { color: '#74C0FC', emoji: '☀️' },
+  '夕方':  { color: '#FFA94D', emoji: '🌆' },
+  '夜':    { color: '#748FFC', emoji: '🌙' },
+  '家事':  { color: '#F783AC', emoji: '🧹' },
+  '料理':  { color: '#DA77F2', emoji: '🍳' },
+  '副業':  { color: '#63E6BE', emoji: '💼' },
+  '習慣':  { color: '#4DABF7', emoji: '⭐' },
+  '前日':  { color: '#FFA8A8', emoji: '📋' },
+  '帰宅後':{ color: '#8CE99A', emoji: '🏠' },
+};
+
+const BLOCK_ORDER = ['朝','昼','夕方','夜','家事','料理','副業','習慣','前日','帰宅後'];
+
+const HABITS_CFG = [
+  { key: 'aerobike',           label: 'エアロバイク',   emoji: '🚴', sub: '10分以上' },
+  { key: 'gym',                label: 'ジム',           emoji: '🏋️', sub: '外出・運動の日はOK' },
+  { key: 'supplement_morning', label: 'サプリ（朝）',   emoji: '💊', sub: '' },
+  { key: 'supplement_evening', label: 'サプリ（夜）',   emoji: '💊', sub: '' },
+  { key: 'novel',              label: '小説を書く',      emoji: '✍️', sub: '10分でも◎' },
+  { key: 'study',              label: 'IT資格勉強',      emoji: '📚', sub: '10分でも◎' },
+];
+
+// ============================================================
+// State
+// ============================================================
+const S = {
+  today: '',
+  dayType: '',
+  tasks: [],
+  taskStatus: {},   // { id: { status, startTime, endTime, actualMinutes } }
+  timers: {},       // { id: intervalId }
+  habits: {},
+  rating: 0,
+  goalsLoaded: false,
+};
+
+// ============================================================
+// 起動
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  const now = new Date();
+  S.today = fmtDate(now);
+
+  const dayNames = ['日','月','火','水','木','金','土'];
+  document.getElementById('dateDisplay').textContent =
+    `${now.getMonth()+1}月${now.getDate()}日（${dayNames[now.getDay()]}）`;
+
+  // 日タイプ復元
+  const savedType = localStorage.getItem('dayType_' + S.today);
+  if (savedType) {
+    S.dayType = savedType;
+    document.getElementById('dayTypeSelect').value = savedType;
+    loadTasks();
+  }
+
+  // 習慣復元
+  const savedHabits = localStorage.getItem('habits_' + S.today);
+  if (savedHabits) S.habits = JSON.parse(savedHabits);
+  renderHabits();
+
+  // 日次ログ復元
+  const savedLog = localStorage.getItem('log_' + S.today);
+  if (savedLog) {
+    const l = JSON.parse(savedLog);
+    if (l.weight)   document.getElementById('weightInput').value   = l.weight;
+    if (l.wakeTime) document.getElementById('wakeTimeInput').value = l.wakeTime;
+    if (l.rating)   selectRating(l.rating, true);
+    if (l.journal)  document.getElementById('journalText').value   = l.journal;
+  }
+
+  // お惣菜提案（バックグラウンド）
+  loadWeeklyContext();
+
+  // 入力変化で自動保存
+  ['weightInput','wakeTimeInput','journalText'].forEach(id =>
+    document.getElementById(id).addEventListener('input', saveLogLocal)
+  );
+});
+
+// ============================================================
+// タブ切り替え
+// ============================================================
+function switchTab(tab) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('nav-' + tab).classList.add('active');
+  if (tab === 'goals' && !S.goalsLoaded) loadGoals();
+}
+
+// ============================================================
+// 日タイプ変更
+// ============================================================
+function onDayTypeChange() {
+  S.dayType = document.getElementById('dayTypeSelect').value;
+  if (!S.dayType) return;
+  localStorage.setItem('dayType_' + S.today, S.dayType);
+  loadTasks();
+}
+
+// ============================================================
+// タスク読み込み
+// ============================================================
+async function loadTasks() {
+  document.getElementById('taskListArea').innerHTML =
+    '<div class="loading"><div class="spinner"></div><span>読み込み中…</span></div>';
+  try {
+    const r = await fetch(`${API_URL}?action=getTemplates&dayType=${encodeURIComponent(S.dayType)}`);
+    const d = await r.json();
+    S.tasks = d.tasks || [];
+
+    // タスク状態復元
+    const saved = localStorage.getItem('taskStatus_' + S.today);
+    if (saved) S.taskStatus = JSON.parse(saved);
+
+    renderTasks();
+    updateProgress();
+  } catch (e) {
+    document.getElementById('taskListArea').innerHTML =
+      `<div class="empty-state"><div class="e">⚠️</div><p>読み込みに失敗しました<br><small>${e.message}</small></p></div>`;
+  }
+}
+
+// ============================================================
+// タスク描画
+// ============================================================
+function renderTasks() {
+  if (!S.tasks.length) {
+    document.getElementById('taskListArea').innerHTML =
+      '<div class="empty-state"><div class="e">📭</div><p>タスクが見つかりませんでした</p></div>';
+    return;
+  }
+
+  const groups = {};
+  S.tasks.forEach(t => {
+    const b = t['ブロック'] || 'その他';
+    (groups[b] = groups[b] || []).push(t);
+  });
+
+  let html = '';
+  BLOCK_ORDER.forEach(b => {
+    if (!groups[b]) return;
+    const cfg = BLOCK_CFG[b] || { color:'#ADB5BD', emoji:'📌' };
+    html += `<div class="block-section">
+      <div class="block-header">
+        <div class="block-dot" style="background:${cfg.color}"></div>
+        <span class="block-label">${cfg.emoji} ${b}</span>
+      </div>`;
+    groups[b].forEach(t => { html += cardHTML(t); });
+    html += '</div>';
+  });
+
+  document.getElementById('taskListArea').innerHTML = html;
+}
+
+function cardHTML(task) {
+  const id  = task['タスクID'];
+  const est = Number(task['見積もり時間(分)']) || 0;
+  const req = task['必須'] === '✓';
+  const st  = S.taskStatus[id] || { status: 'idle' };
+
+  let cls = 'task-card' + (req ? ' required' : '');
+  if (st.status === 'running') cls += ' running';
+  if (st.status === 'done')    cls += ' done';
+  if (st.status === 'skip')    cls += ' skipped';
+
+  const nameCls = (st.status === 'done' || st.status === 'skip') ? 'task-name done-text' : 'task-name';
+  let timerHtml = '', actHtml = '';
+
+  if (st.status === 'running') {
+    timerHtml = `<div class="timer-display" id="tmr-${id}">00:00</div>`;
+  } else if (st.status === 'done') {
+    const diff = st.actualMinutes - est;
+    const cls2 = diff > 0 ? 'actual-over' : 'actual-ok';
+    const sign = diff > 0 ? `(+${diff}分 超過)` : diff < 0 ? `(${diff}分)` : '';
+    actHtml = `<div class="actual-display ${cls2}">✓ 実績 ${st.actualMinutes}分 / 見積 ${est}分 <span>${sign}</span></div>`;
+  } else if (st.status === 'skip') {
+    actHtml = `<div class="actual-display actual-skip">— スキップ</div>`;
+  }
+
+  let actions = '';
+  if      (st.status === 'idle')    actions = `<button class="btn btn-start" onclick="startTask('${id}')">▶ スタート</button><button class="btn btn-skip" onclick="skipTask('${id}')">スキップ</button>`;
+  else if (st.status === 'running') actions = `<button class="btn btn-done" onclick="completeTask('${id}',${est})">✓ 完了</button>`;
+  else                              actions = `<button class="btn btn-undo" onclick="undoTask('${id}')">↩ 戻す</button>`;
+
+  return `<div class="${cls}" id="card-${id}">
+    <div class="task-top">
+      <div class="${nameCls}">${task['タスク名']}</div>
+      ${est ? `<div class="task-est">${est}分</div>` : ''}
+    </div>
+    ${timerHtml}${actHtml}
+    <div class="task-actions">${actions}</div>
+  </div>`;
+}
+
+// ============================================================
+// タスク操作
+// ============================================================
+function startTask(id) {
+  const running = Object.values(S.taskStatus).some(v => v.status === 'running');
+  if (running) { showToast('実行中のタスクを先に完了してください'); return; }
+  S.taskStatus[id] = { status: 'running', startTime: new Date().toISOString() };
+  saveStatusLocal();
+  reRenderCard(id);
+  updateProgress();
+}
+
+function completeTask(id, est) {
+  const st = S.taskStatus[id];
+  if (!st || st.status !== 'running') return;
+  clearInterval(S.timers[id]); delete S.timers[id];
+
+  const endTime  = new Date();
+  const actual   = Math.max(1, Math.round((endTime - new Date(st.startTime)) / 60000));
+  S.taskStatus[id] = {
+    status: 'done',
+    startTime: fmtTime(new Date(st.startTime)),
+    endTime:   fmtTime(endTime),
+    actualMinutes: actual
+  };
+  saveStatusLocal();
+  reRenderCard(id);
+  updateProgress();
+
+  // APIに保存（失敗してもUIには影響させない）
+  const task = S.tasks.find(t => t['タスクID'] === id);
+  if (task) {
+    apiPost({
+      action: 'saveTaskLog',
+      date: S.today, dayType: S.dayType,
+      taskId: id, taskName: task['タスク名'], category: task['カテゴリ'],
+      startTime: S.taskStatus[id].startTime, endTime: S.taskStatus[id].endTime,
+      estimatedMinutes: est, completed: true
+    }).catch(() => {});
+  }
+
+  if (actual > est * 1.4 && est > 0) {
+    setTimeout(() => showToast(`実績 ${actual}分（見積より${actual - est}分多め）記録しました`), 300);
+  }
+}
+
+function skipTask(id) {
+  S.taskStatus[id] = { status: 'skip' };
+  saveStatusLocal(); reRenderCard(id); updateProgress();
+}
+
+function undoTask(id) {
+  if (S.timers[id]) { clearInterval(S.timers[id]); delete S.timers[id]; }
+  delete S.taskStatus[id];
+  saveStatusLocal(); reRenderCard(id); updateProgress();
+}
+
+function reRenderCard(id) {
+  const task = S.tasks.find(t => t['タスクID'] === id);
+  if (!task) return;
+  const el = document.getElementById('card-' + id);
+  if (!el) return;
+  const tmp = document.createElement('div');
+  tmp.innerHTML = cardHTML(task);
+  el.replaceWith(tmp.firstElementChild);
+
+  if (S.taskStatus[id]?.status === 'running') {
+    S.timers[id] = setInterval(() => tickTimer(id), 1000);
+  }
+}
+
+function tickTimer(id) {
+  const el = document.getElementById('tmr-' + id);
+  if (!el || !S.taskStatus[id]) return;
+  const sec = Math.round((new Date() - new Date(S.taskStatus[id].startTime)) / 1000);
+  el.textContent = `${pad(Math.floor(sec/60))}:${pad(sec%60)}`;
+}
+
+function updateProgress() {
+  const req   = S.tasks.filter(t => t['必須'] === '✓');
+  const total = req.length;
+  if (!total) {
+    document.getElementById('progressText').textContent = 'タスクを選択してください';
+    document.getElementById('progressFill').style.width = '0%';
+    return;
+  }
+  const done = req.filter(t => S.taskStatus[t['タスクID']]?.status === 'done').length;
+  const pct  = Math.round(done / total * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `必須タスク ${done}/${total} 完了 (${pct}%)`;
+}
+
+function saveStatusLocal() {
+  localStorage.setItem('taskStatus_' + S.today, JSON.stringify(S.taskStatus));
+}
+
+// ============================================================
+// 週次コンテキスト（お惣菜提案）
+// ============================================================
+async function loadWeeklyContext() {
+  try {
+    const r = await fetch(`${API_URL}?action=getWeeklyContext`);
+    const d = await r.json();
+    if (d.suggestion) {
+      document.getElementById('suggestionArea').innerHTML =
+        `<div class="suggestion-banner"><div class="ico">💡</div><p>${d.suggestion}</p></div>`;
+    }
+  } catch (e) { /* サイレント */ }
+}
+
+// ============================================================
+// 習慣
+// ============================================================
+function renderHabits() {
+  document.getElementById('habitListArea').innerHTML = HABITS_CFG.map(h => {
+    const checked = !!S.habits[h.key];
+    return `<div class="habit-card" onclick="toggleHabit('${h.key}')">
+      <div class="habit-check ${checked?'checked':''}">${checked?'✓':''}</div>
+      <div>
+        <div class="habit-name">${h.emoji} ${h.label}</div>
+        ${h.sub ? `<div class="habit-sub">${h.sub}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleHabit(key) {
+  S.habits[key] = !S.habits[key];
+  localStorage.setItem('habits_' + S.today, JSON.stringify(S.habits));
+  renderHabits();
+}
+
+async function saveHabits() {
+  const btn = document.getElementById('saveHabitsBtn');
+  btn.textContent = '保存中…'; btn.disabled = true;
+  try {
+    const DAY = ['日','月','火','水','木','金','土'];
+    await apiPost({ action:'saveHabits', date:S.today,
+      dayOfWeek: DAY[new Date().getDay()], dayType: S.dayType, habits: S.habits });
+    btn.textContent = '✓ 保存しました！'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent='習慣を保存する'; btn.classList.remove('ok'); btn.disabled=false; }, 2000);
+  } catch (e) {
+    btn.textContent = '習慣を保存する'; btn.disabled = false; showToast('保存に失敗しました');
+  }
+}
+
+// ============================================================
+// 評価
+// ============================================================
+function selectRating(r, silent=false) {
+  S.rating = r;
+  document.querySelectorAll('.rating-btn').forEach(b =>
+    b.classList.toggle('selected', Number(b.dataset.r) === r));
+  if (!silent) saveLogLocal();
+}
+
+function saveLogLocal() {
+  localStorage.setItem('log_' + S.today, JSON.stringify({
+    weight:   document.getElementById('weightInput').value,
+    wakeTime: document.getElementById('wakeTimeInput').value,
+    rating:   S.rating,
+    journal:  document.getElementById('journalText').value,
+  }));
+}
+
+// ============================================================
+// ジャーナル保存
+// ============================================================
+async function saveJournal() {
+  const btn = document.getElementById('saveJournalBtn');
+  btn.textContent = '保存中…'; btn.disabled = true;
+  const DAY = ['日','月','火','水','木','金','土'];
+  const payload = {
+    action:'saveDailyLog', date:S.today,
+    dayOfWeek: DAY[new Date().getDay()], dayType: S.dayType,
+    wakeTime: document.getElementById('wakeTimeInput').value,
+    weight:   document.getElementById('weightInput').value,
+    journal:  document.getElementById('journalText').value,
+    rating:   S.rating || '',
+  };
+  saveLogLocal();
+  try {
+    await apiPost(payload);
+    btn.textContent = '✓ 保存しました！'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent='保存する'; btn.classList.remove('ok'); btn.disabled=false; }, 2000);
+  } catch (e) {
+    btn.textContent = '保存する'; btn.disabled = false;
+    showToast('APIへの保存に失敗（端末には保存済）');
+  }
+}
+
+// ============================================================
+// ゴール
+// ============================================================
+async function loadGoals() {
+  try {
+    const r = await fetch(`${API_URL}?action=getGoals`);
+    const d = await r.json();
+    S.goalsLoaded = true;
+    renderGoals(d.goals || []);
+  } catch (e) {
+    document.getElementById('goalListArea').innerHTML =
+      '<div class="empty-state"><div class="e">⚠️</div><p>読み込みに失敗しました</p></div>';
+  }
+}
+
+function renderGoals(goals) {
+  if (!goals.length) {
+    document.getElementById('goalListArea').innerHTML =
+      '<div class="empty-state"><div class="e">🎯</div><p>スプレッドシートの⑤ゴールシートから<br>目標を追加できます</p></div>';
+    return;
+  }
+  document.getElementById('goalListArea').innerHTML = goals.map(g => {
+    const target  = Number(g['目標値'])  || 1;
+    const current = Number(g['現在値'])  || 0;
+    const pct     = Math.min(100, Math.round(current / target * 100));
+    const dl      = g['期限'] ? `  期限：${String(g['期限']).substring(0,10)}` : '';
+    return `<div class="goal-card">
+      <div class="goal-header">
+        <div><div class="goal-name">${g['目標名']}</div><div class="goal-category">${g['カテゴリ']} · ${g['単位']}</div></div>
+        <div class="goal-pct">${pct}%</div>
+      </div>
+      <div class="goal-bar"><div class="goal-fill" style="width:${pct}%"></div></div>
+      <div class="goal-meta">${current.toLocaleString()} / ${target.toLocaleString()} ${g['単位']}${dl}</div>
+      <div class="goal-update">
+        <input type="number" class="goal-input" id="gi-${g['目標ID']}" placeholder="今日の積み上げ量" step="any">
+        <button class="btn btn-primary" onclick="addGoalProgress('${g['目標ID']}',${current})">追加</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function addGoalProgress(goalId, current) {
+  const inp = document.getElementById('gi-' + goalId);
+  const add = Number(inp.value);
+  if (!add || add <= 0) { showToast('追加する量を入力してください'); return; }
+  try {
+    await apiPost({ action:'updateGoal', goalId, currentValue: current + add });
+    showToast(`+${add} 追加しました！`);
+    inp.value = ''; S.goalsLoaded = false; loadGoals();
+  } catch (e) { showToast('更新に失敗しました'); }
+}
+
+// ============================================================
+// ユーティリティ
+// ============================================================
+async function apiPost(data) {
+  const r = await fetch(API_URL, { method:'POST', body: JSON.stringify(data) });
+  return await r.json();
+}
+
+function fmtDate(d) {
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+function fmtTime(d) { return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function pad(n)     { return String(n).padStart(2,'0'); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
