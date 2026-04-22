@@ -1,6 +1,6 @@
 /**
  * スケジュール・タスク管理アプリ GAS Web API
- * Last deployed: 2026-04-23
+ * Last deployed: 2026-04-22 22:02
  *
  * 【デプロイ手順】
  * 1. スプレッドシートを開く → 拡張機能 > Apps Script
