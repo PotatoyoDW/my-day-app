@@ -225,6 +225,14 @@
     .tmpl-replace-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
     .tmpl-replace-row label { font-size: 13px; color: #555; display: flex; align-items: center; gap: 6px; cursor: pointer; }
     .tmpl-replace-row input[type=checkbox] { width: 16px; height: 16px; accent-color: #5B8DB8; cursor: pointer; }
+    .tmpl-preview-row input[type=checkbox] { width: 16px; height: 16px; accent-color: #5B8DB8; flex-shrink: 0; cursor: pointer; }
+    .tmpl-auto-badge { font-size: 10px; background: #EFF9F4; color: #16A661; padding: 1px 5px; border-radius: 8px; font-weight: 600; margin-left: 4px; }
+
+    /* 手入力タイマー */
+    .btn-manual-toggle { width: 100%; padding: 9px; border-radius: 8px; border: 1.5px dashed #52B788; background: transparent; font-size: 13px; color: #52B788; cursor: pointer; margin-bottom: 10px; font-weight: 600; }
+    .modal-manual-time { background: #F4FBF4; border-radius: 10px; padding: 12px; margin-bottom: 12px; border: 1px solid #D4EAD4; }
+    .modal-manual-time .form-label { color: #52B788; }
+    .btn-manual-record { width: 100%; padding: 10px; border-radius: 8px; border: none; background: #52B788; color: white; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; }
 
     /* Toast */
     .toast { position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%) translateY(8px); background: rgba(30,30,30,0.88); color: white; padding: 9px 18px; border-radius: 20px; font-size: 14px; opacity: 0; transition: all 0.25s; z-index: 500; white-space: nowrap; pointer-events: none; }
@@ -382,6 +390,14 @@
       </div>
       <button class="btn-timer btn-timer-start" id="btn-timer-action">▶ 今すぐ開始</button>
     </div>
+    <button class="btn-manual-toggle" id="btn-manual-toggle" style="display:none">⏰ 時刻を後から手入力して記録する</button>
+    <div id="manual-time-section" class="modal-manual-time" style="display:none">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">開始時刻</label><input type="time" class="form-input" id="manual-start"></div>
+        <div class="form-group"><label class="form-label">終了時刻</label><input type="time" class="form-input" id="manual-end"></div>
+      </div>
+      <button class="btn-manual-record" id="btn-manual-record">✅ この時刻で実績を記録する</button>
+    </div>
     <div class="form-group">
       <label class="form-label">タイトル</label>
       <input type="text" class="form-input" id="event-title" placeholder="例：仕事、昼ごはん、休憩...">
@@ -475,7 +491,7 @@ const TEMPLATES = {
       { title:'朝食・弁当準備', duration:30, category:'生活' },
       { title:'朝の支度②',     duration:20, category:'生活' },
       { title:'移動（通勤）',  untilTime:'08:20', category:'生活' },
-      { title:'仕事', fixedStart:'08:20', fixedEnd:'18:10', category:'仕事' },
+      { title:'仕事', fixedStart:'08:20', fixedEnd:'18:10', category:'仕事', autoActual:true },
       { title:'帰宅・移動', fixedStart:'18:10', duration:30, category:'生活' }
     ]
   },
@@ -550,6 +566,7 @@ const S = {
   statsYear:0, statsMonth:0,
   saveTimer:null, timers:{},
   mMode:'planned', mCat:'その他', mEditId:null, mEditType:null,
+  tmplEvs:[],
   // plank timer
   plankTarget:60, plankRemaining:60, plankInterval:null, plankStartedAt:null
 };
@@ -692,6 +709,15 @@ function handleModalTimerAction(){
   if(S.timers[ev.id]) handleTimerEnd(ev); else handleTimerStart(ev);
   updateModalTimerSection(ev.id);
 }
+function handleManualTimeRecord(){
+  const ev=S.planned.find(e=>e.id===S.mEditId); if(!ev) return;
+  const start=document.getElementById('manual-start').value, end=document.getElementById('manual-end').value;
+  if(!start||!end){ showToast('開始・終了時刻を入力してください'); return; }
+  if(minFromStr(start)>=minFromStr(end)){ showToast('終了は開始より後にしてください'); return; }
+  S.actual.push({id:genId(),title:ev.title,startTime:start,endTime:end,category:ev.category||'その他',fromPlannedId:ev.id});
+  closeModal(); renderTimeline(); scheduleSave();
+  showToast(`✅ ${start}〜${end} 実績を手入力で記録しました`);
+}
 function updateModalTimerSection(evId){
   const sec=document.getElementById('modal-timer-section'),run=document.getElementById('modal-timer-running'),lbl=document.getElementById('modal-timer-start-label'),btn=document.getElementById('btn-timer-action');
   if(!sec) return;
@@ -813,6 +839,7 @@ function openAddModal(mode,defStart){
   document.getElementById('modal-title').textContent='イベントを追加';
   document.getElementById('event-title').value=''; document.getElementById('event-start').value=defStart||''; document.getElementById('event-end').value='';
   document.getElementById('modal-delete').style.display='none'; document.getElementById('type-toggle-row').style.display=''; document.getElementById('modal-timer-section').style.display='none';
+  document.getElementById('btn-manual-toggle').style.display='none'; document.getElementById('manual-time-section').style.display='none';
   syncModalUI(); document.getElementById('event-modal').classList.add('open');
 }
 function openEditModal(ev,type){
@@ -820,7 +847,16 @@ function openEditModal(ev,type){
   document.getElementById('modal-title').textContent='イベントを編集'; document.getElementById('event-title').value=ev.title; document.getElementById('event-start').value=ev.startTime; document.getElementById('event-end').value=ev.endTime;
   document.getElementById('modal-delete').style.display=''; document.getElementById('type-toggle-row').style.display='none';
   const ts=document.getElementById('modal-timer-section');
-  if(type==='planned'){ ts.style.display=''; updateModalTimerSection(ev.id); } else ts.style.display='none';
+  const manualToggle=document.getElementById('btn-manual-toggle');
+  const manualSection=document.getElementById('manual-time-section');
+  if(type==='planned'){
+    ts.style.display=''; updateModalTimerSection(ev.id);
+    manualToggle.style.display=''; manualSection.style.display='none';
+    document.getElementById('manual-start').value=ev.startTime;
+    document.getElementById('manual-end').value=ev.endTime;
+  } else {
+    ts.style.display='none'; manualToggle.style.display='none'; manualSection.style.display='none';
+  }
   syncModalUI(); document.getElementById('event-modal').classList.add('open');
 }
 function closeModal(){ document.getElementById('event-modal').classList.remove('open'); }
@@ -855,18 +891,36 @@ function openTemplateModal(){
 function closeTemplateModal(){ document.getElementById('template-modal').classList.remove('open'); }
 function updateTemplatePreview(){
   const wt=document.getElementById('tmpl-wake-time').value||'06:30';
-  const evs=buildTemplateEvents(S.dayType,wt);
-  document.getElementById('tmpl-preview').innerHTML=evs.length
-    ? evs.map(e=>`<div class="tmpl-preview-row"><span class="tmpl-time">${e.startTime}〜${e.endTime}</span><span class="tmpl-title">${e.title}</span></div>`).join('')
+  S.tmplEvs=buildTemplateEvents(S.dayType,wt);
+  const tmpl=TEMPLATES[S.dayType];
+  const autoTitles=new Set((tmpl?.events||[]).filter(e=>e.autoActual).map(e=>e.title));
+  document.getElementById('tmpl-preview').innerHTML=S.tmplEvs.length
+    ? S.tmplEvs.map((e,i)=>`
+        <div class="tmpl-preview-row">
+          <input type="checkbox" class="tmpl-check" data-idx="${i}" id="tmpl-check-${i}" checked>
+          <span class="tmpl-time">${e.startTime}〜${e.endTime}</span>
+          <label for="tmpl-check-${i}" class="tmpl-title" style="cursor:pointer;flex:1">${e.title}${autoTitles.has(e.title)?'<span class="tmpl-auto-badge">予定+実績</span>':''}</label>
+        </div>`).join('')
     : '<div style="color:#AAA;font-size:13px;">イベントがありません</div>';
 }
 function applyTemplateModal(){
-  const wt=document.getElementById('tmpl-wake-time').value||'06:30', replace=document.getElementById('tmpl-replace-check').checked;
-  const evs=buildTemplateEvents(S.dayType,wt);
-  if(!evs.length){ showToast('配置できるイベントがありませんでした'); return; }
+  const replace=document.getElementById('tmpl-replace-check').checked;
+  // チェックされた項目のみ取得
+  const checked=document.querySelectorAll('.tmpl-check:checked');
+  const idxs=new Set([...checked].map(c=>parseInt(c.dataset.idx)));
+  const evs=(S.tmplEvs||[]).filter((_,i)=>idxs.has(i));
+  if(!evs.length){ showToast('配置するイベントが選択されていません'); return; }
+  // autoActual判定
+  const tmpl=TEMPLATES[S.dayType];
+  const autoTitles=new Set((tmpl?.events||[]).filter(e=>e.autoActual).map(e=>e.title));
+  const autoEvs=evs.filter(e=>autoTitles.has(e.title)).map(e=>({...e,id:genId()}));
+  // 予定に配置
   if(replace) S.planned=evs; else S.planned=[...S.planned,...evs];
+  // autoActualイベントは実績にも追加
+  if(autoEvs.length) S.actual=[...S.actual,...autoEvs];
   closeTemplateModal(); renderTimeline(); scheduleSave();
-  showToast(`📋 ${evs.length}件のルーティンを配置しました`);
+  const autoMsg=autoEvs.length?`（うち${autoEvs.length}件は実績にも自動登録）`:'';
+  showToast(`📋 ${evs.length}件のルーティンを配置しました${autoMsg}`);
 }
 
 // ================================================================
@@ -955,6 +1009,11 @@ function setupListeners(){
   document.querySelectorAll('.cat-btn').forEach(b=>b.addEventListener('click',()=>{ S.mCat=b.dataset.cat; syncModalUI(); }));
   document.getElementById('event-modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
   document.getElementById('btn-timer-action').addEventListener('click',handleModalTimerAction);
+  document.getElementById('btn-manual-toggle').addEventListener('click',()=>{
+    const sec=document.getElementById('manual-time-section');
+    sec.style.display=sec.style.display==='none'?'':'none';
+  });
+  document.getElementById('btn-manual-record').addEventListener('click',handleManualTimeRecord);
   // Template modal
   document.getElementById('template-apply-btn').addEventListener('click',openTemplateModal);
   document.getElementById('tmpl-close').addEventListener('click',closeTemplateModal);
