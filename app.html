@@ -234,6 +234,49 @@
     .modal-manual-time .form-label { color: #52B788; }
     .btn-manual-record { width: 100%; padding: 10px; border-radius: 8px; border: none; background: #52B788; color: white; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; }
 
+    /* ====== SETTINGS TAB ====== */
+    .settings-wrapper { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 24px; }
+    .settings-wrapper::-webkit-scrollbar { display: none; }
+    .settings-section { background: white; border-radius: 16px; margin: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .settings-section-title { font-size: 12px; font-weight: 700; color: #AAA; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 16px 8px; border-bottom: 1px solid #F5F5F5; }
+    .settings-dt-tabs { display: flex; overflow-x: auto; scrollbar-width: none; padding: 10px 12px; gap: 8px; border-bottom: 1px solid #F5F5F5; }
+    .settings-dt-tabs::-webkit-scrollbar { display: none; }
+    .settings-dt-tab { flex-shrink: 0; padding: 6px 12px; border-radius: 20px; border: 1.5px solid #E0E0E0; background: white; font-size: 12px; cursor: pointer; color: #888; font-weight: 500; }
+    .settings-dt-tab.active { color: white; border-color: transparent; font-weight: 600; }
+    .settings-dt-tab[data-dt="出勤"].active { background: #5B8DB8; }
+    .settings-dt-tab[data-dt="在宅"].active { background: #52B788; }
+    .settings-dt-tab[data-dt="休日"].active { background: #C77DFF; }
+    .settings-dt-tab[data-dt="旅行"].active { background: #F4A261; }
+    .settings-dt-tab[data-dt="出張"].active { background: #E76F51; }
+    .tmpl-item-row { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid #F5F5F5; background: white; }
+    .tmpl-item-row:last-child { border-bottom: none; }
+    .tmpl-drag-handle { font-size: 20px; color: #CCC; cursor: grab; touch-action: none; padding: 0 2px; flex-shrink: 0; line-height: 1; }
+    .tmpl-item-info { flex: 1; min-width: 0; }
+    .tmpl-item-title { font-size: 14px; font-weight: 600; color: #2D3436; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tmpl-item-meta { font-size: 11px; color: #AAA; margin-top: 2px; }
+    .tmpl-item-cat { padding: 2px 7px; border-radius: 8px; font-size: 10px; font-weight: 600; background: #F0F4FA; color: #5B8DB8; flex-shrink: 0; }
+    .tmpl-item-auto-badge { padding: 2px 7px; border-radius: 8px; font-size: 10px; font-weight: 600; background: #EFF9F4; color: #16A661; flex-shrink: 0; }
+    .tmpl-item-edit-btn { width: 30px; height: 30px; border-radius: 50%; border: none; background: #F5F5F5; color: #666; font-size: 14px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .tmpl-add-row { padding: 12px 16px; }
+    .tmpl-add-btn { width: 100%; padding: 11px; border-radius: 10px; border: 1.5px dashed #5B8DB8; background: transparent; color: #5B8DB8; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .dnd-above { border-top: 3px solid #5B8DB8 !important; }
+    .dnd-below { border-bottom: 3px solid #5B8DB8 !important; }
+    .dnd-dragging { opacity: 0.3 !important; }
+
+    /* Template Item Edit Modal */
+    .timing-type-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .timing-type-btn { flex: 1; min-width: 80px; padding: 8px 6px; border-radius: 8px; border: 1.5px solid #E0E0E0; background: white; font-size: 11px; font-weight: 600; cursor: pointer; color: #888; text-align: center; }
+    .timing-type-btn.active { border-color: #5B8DB8; color: #5B8DB8; background: #EEF4FB; }
+    .switch-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 1px solid #F5F5F5; margin-top: 4px; }
+    .switch-info .switch-label { font-size: 14px; color: #2D3436; font-weight: 500; }
+    .switch-info .switch-sub { font-size: 11px; color: #AAA; margin-top: 2px; }
+    .switch-toggle { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
+    .switch-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .switch-slider { position: absolute; inset: 0; background: #DDD; border-radius: 13px; transition: 0.2s; cursor: pointer; }
+    .switch-slider:before { content:''; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .switch-toggle input:checked + .switch-slider { background: #52B788; }
+    .switch-toggle input:checked + .switch-slider:before { transform: translateX(20px); }
+
     /* Toast */
     .toast { position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%) translateY(8px); background: rgba(30,30,30,0.88); color: white; padding: 9px 18px; border-radius: 20px; font-size: 14px; opacity: 0; transition: all 0.25s; z-index: 500; white-space: nowrap; pointer-events: none; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -262,7 +305,8 @@
     <button class="tab-btn active" data-tab="timeline">今日</button>
     <button class="tab-btn" data-tab="calendar">カレンダー</button>
     <button class="tab-btn" data-tab="stats">統計</button>
-    <button class="tab-btn" data-tab="plank">🏋️ プランク</button>
+    <button class="tab-btn" data-tab="plank">🏋️</button>
+    <button class="tab-btn" data-tab="settings">⚙️ 設定</button>
   </nav>
 
   <!-- TODAY -->
@@ -337,6 +381,25 @@
         <div class="plank-today-section">
           <div class="plank-section-label" style="margin-top:0">今日の記録</div>
           <div id="plank-today-records"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- SETTINGS -->
+  <section class="tab-content" id="tab-settings">
+    <div class="settings-wrapper">
+      <div class="settings-section">
+        <div class="settings-section-title">📋 テンプレート管理</div>
+        <div class="settings-dt-tabs" id="settings-dt-tabs">
+          <button class="settings-dt-tab active" data-dt="出勤">🏢 出勤</button>
+          <button class="settings-dt-tab" data-dt="在宅">🏠 在宅</button>
+          <button class="settings-dt-tab" data-dt="休日">😴 休日</button>
+          <button class="settings-dt-tab" data-dt="旅行">🌄 旅行</button>
+          <button class="settings-dt-tab" data-dt="出張">✈️ 出張</button>
+        </div>
+        <div id="tmpl-item-list"></div>
+        <div class="tmpl-add-row">
+          <button class="tmpl-add-btn" id="tmpl-item-add-btn">＋ タスクを追加</button>
         </div>
       </div>
     </div>
@@ -443,6 +506,77 @@
     <div class="modal-actions">
       <button class="btn-cancel" id="tmpl-cancel">キャンセル</button>
       <button class="btn-save" id="tmpl-apply">配置する</button>
+    </div>
+  </div>
+</div>
+
+<!-- TEMPLATE ITEM EDIT MODAL -->
+<div class="modal-overlay" id="tmpl-item-modal">
+  <div class="modal-sheet">
+    <div class="modal-top">
+      <div class="modal-title" id="tmpl-item-modal-title">テンプレートを追加</div>
+      <button class="modal-close" id="tmpl-item-modal-close">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">タイトル</label>
+      <input type="text" class="form-input" id="ti-title" placeholder="例：朝の支度、仕事...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">カテゴリ</label>
+      <div class="cat-picker" id="ti-cat-picker">
+        <button class="cat-btn" data-cat="仕事">💼 仕事</button>
+        <button class="cat-btn" data-cat="生活">🏠 生活</button>
+        <button class="cat-btn" data-cat="勉強">📚 勉強</button>
+        <button class="cat-btn" data-cat="運動">🚴 運動</button>
+        <button class="cat-btn" data-cat="休憩">☕ 休憩</button>
+        <button class="cat-btn selected" data-cat="その他">✨ その他</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">時間設定</label>
+      <div class="timing-type-tabs">
+        <button class="timing-type-btn active" data-timing="duration">所要時間</button>
+        <button class="timing-type-btn" data-timing="fixed">固定時刻</button>
+        <button class="timing-type-btn" data-timing="untilTime">〜まで</button>
+        <button class="timing-type-btn" data-timing="fixedStart+dur">固定開始＋時間</button>
+      </div>
+      <div id="ti-timing-duration">
+        <div class="form-row">
+          <div class="form-group" style="max-width:140px"><label class="form-label">所要時間（分）</label><input type="number" class="form-input" id="ti-duration" min="5" max="480" value="30"></div>
+        </div>
+      </div>
+      <div id="ti-timing-fixed" style="display:none">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">開始</label><input type="time" class="form-input" id="ti-fixed-start"></div>
+          <div class="form-group"><label class="form-label">終了</label><input type="time" class="form-input" id="ti-fixed-end"></div>
+        </div>
+      </div>
+      <div id="ti-timing-until" style="display:none">
+        <div class="form-row">
+          <div class="form-group" style="max-width:140px"><label class="form-label">終了時刻</label><input type="time" class="form-input" id="ti-until-time"></div>
+        </div>
+      </div>
+      <div id="ti-timing-fixedstart" style="display:none">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">開始時刻</label><input type="time" class="form-input" id="ti-fs-start"></div>
+          <div class="form-group"><label class="form-label">所要時間（分）</label><input type="number" class="form-input" id="ti-fs-duration" min="5" max="480" value="30"></div>
+        </div>
+      </div>
+    </div>
+    <div class="switch-row">
+      <div class="switch-info">
+        <div class="switch-label">予定＝実績として自動記録</div>
+        <div class="switch-sub">配置時に実績にも自動登録される（仕事など）</div>
+      </div>
+      <label class="switch-toggle">
+        <input type="checkbox" id="ti-auto-actual">
+        <span class="switch-slider"></span>
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="tmpl-item-modal-cancel">キャンセル</button>
+      <button class="btn-delete" id="tmpl-item-modal-delete" style="display:none">🗑</button>
+      <button class="btn-save" id="tmpl-item-modal-save">保存する</button>
     </div>
   </div>
 </div>
@@ -633,6 +767,193 @@ async function loadStats(y,m){
     }
   });
   return { dtc, rec, total:days, plankTotal, plankBest, plankSessions, plankByDay };
+}
+
+// ================================================================
+// テンプレート Firestore
+// ================================================================
+async function loadTemplatesFromFirestore(){
+  try {
+    const snaps=await Promise.all(DAY_TYPES.map(dt=>db.collection('templates').doc(dt).get()));
+    snaps.forEach((snap,i)=>{
+      const dt=DAY_TYPES[i];
+      if(snap.exists&&snap.data().events&&snap.data().events.length){
+        TEMPLATES[dt]={ wakeLabel:TEMPLATES[dt]?.wakeLabel||'起床時間', events:snap.data().events };
+      }
+    });
+  } catch(e){ console.error('loadTemplates error:',e); }
+}
+async function saveTemplateToFirestore(dt){
+  if(!TEMPLATES[dt]) return;
+  await db.collection('templates').doc(dt).set({ events:TEMPLATES[dt].events, updatedAt:firebase.firestore.FieldValue.serverTimestamp() });
+}
+
+// ================================================================
+// 設定タブ ─ テンプレート管理
+// ================================================================
+const TI = { dayType:'出勤', editIdx:-1, cat:'その他', timingType:'duration' };
+
+function renderSettingsTab(){
+  document.querySelectorAll('.settings-dt-tab').forEach(b=>b.classList.toggle('active',b.dataset.dt===TI.dayType));
+  renderTemplateList();
+}
+
+function timingDesc(ev){
+  if(ev.fixedStart&&ev.fixedEnd) return `${ev.fixedStart}〜${ev.fixedEnd}（固定）`;
+  if(ev.fixedStart&&ev.duration) return `${ev.fixedStart}開始・${ev.duration}分`;
+  if(ev.untilTime) return `〜${ev.untilTime}まで`;
+  if(ev.duration) return `${ev.duration}分`;
+  return '';
+}
+
+function renderTemplateList(){
+  const list=document.getElementById('tmpl-item-list'); list.innerHTML='';
+  const evs=(TEMPLATES[TI.dayType]?.events)||[];
+  evs.forEach((ev,i)=>{
+    const row=document.createElement('div'); row.className='tmpl-item-row'; row.dataset.idx=i;
+    row.innerHTML=`
+      <span class="tmpl-drag-handle" data-idx="${i}">⠿</span>
+      <div class="tmpl-item-info">
+        <div class="tmpl-item-title">${ev.title}</div>
+        <div class="tmpl-item-meta">${timingDesc(ev)}</div>
+      </div>
+      ${ev.autoActual?'<span class="tmpl-item-auto-badge">予定+実績</span>':''}
+      <span class="tmpl-item-cat">${ev.category||'その他'}</span>
+      <button class="tmpl-item-edit-btn" data-idx="${i}">✏️</button>`;
+    row.querySelector('.tmpl-item-edit-btn').addEventListener('click',()=>openTemplateItemModal(i));
+    list.appendChild(row);
+  });
+  setupTemplateListDnD(list);
+}
+
+// ── テンプレートアイテム編集モーダル ──────────────────
+function openTemplateItemModal(idx){
+  TI.editIdx=idx;
+  const isNew=idx===-1;
+  document.getElementById('tmpl-item-modal-title').textContent=isNew?'テンプレートを追加':'テンプレートを編集';
+  document.getElementById('tmpl-item-modal-delete').style.display=isNew?'none':'';
+  const ev=isNew?null:TEMPLATES[TI.dayType].events[idx];
+  document.getElementById('ti-title').value=ev?.title||'';
+  document.getElementById('ti-auto-actual').checked=!!(ev?.autoActual);
+  // Category
+  TI.cat=ev?.category||'その他';
+  document.querySelectorAll('#ti-cat-picker .cat-btn').forEach(b=>b.classList.toggle('selected',b.dataset.cat===TI.cat));
+  // Timing type
+  if(ev?.fixedStart&&ev?.fixedEnd){ TI.timingType='fixed'; document.getElementById('ti-fixed-start').value=ev.fixedStart; document.getElementById('ti-fixed-end').value=ev.fixedEnd; }
+  else if(ev?.fixedStart&&ev?.duration){ TI.timingType='fixedStart+dur'; document.getElementById('ti-fs-start').value=ev.fixedStart; document.getElementById('ti-fs-duration').value=ev.duration; }
+  else if(ev?.untilTime){ TI.timingType='untilTime'; document.getElementById('ti-until-time').value=ev.untilTime; }
+  else { TI.timingType='duration'; document.getElementById('ti-duration').value=ev?.duration||30; }
+  syncTimingUI();
+  document.getElementById('tmpl-item-modal').classList.add('open');
+}
+
+function closeTemplateItemModal(){ document.getElementById('tmpl-item-modal').classList.remove('open'); }
+
+function syncTimingUI(){
+  const t=TI.timingType;
+  document.querySelectorAll('.timing-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.timing===t));
+  document.getElementById('ti-timing-duration').style.display=t==='duration'?'':'none';
+  document.getElementById('ti-timing-fixed').style.display=t==='fixed'?'':'none';
+  document.getElementById('ti-timing-until').style.display=t==='untilTime'?'':'none';
+  document.getElementById('ti-timing-fixedstart').style.display=t==='fixedStart+dur'?'':'none';
+}
+
+function handleSaveTemplateItemModal(){
+  const title=document.getElementById('ti-title').value.trim();
+  if(!title){ showToast('タイトルを入力してください'); return; }
+  const autoActual=document.getElementById('ti-auto-actual').checked;
+  const ev={ id:(TI.editIdx>=0?TEMPLATES[TI.dayType].events[TI.editIdx].id:null)||genId(), title, category:TI.cat, autoActual };
+  const t=TI.timingType;
+  if(t==='duration'){
+    const dur=parseInt(document.getElementById('ti-duration').value);
+    if(!dur||dur<1){ showToast('所要時間を入力してください'); return; }
+    ev.duration=dur;
+  } else if(t==='fixed'){
+    const fs=document.getElementById('ti-fixed-start').value, fe=document.getElementById('ti-fixed-end').value;
+    if(!fs||!fe){ showToast('開始・終了時刻を入力してください'); return; }
+    if(minFromStr(fs)>=minFromStr(fe)){ showToast('終了は開始より後にしてください'); return; }
+    ev.fixedStart=fs; ev.fixedEnd=fe;
+  } else if(t==='untilTime'){
+    const ut=document.getElementById('ti-until-time').value;
+    if(!ut){ showToast('終了時刻を入力してください'); return; }
+    ev.untilTime=ut;
+  } else {
+    const fs=document.getElementById('ti-fs-start').value, dur=parseInt(document.getElementById('ti-fs-duration').value);
+    if(!fs||!dur){ showToast('開始時刻・所要時間を入力してください'); return; }
+    ev.fixedStart=fs; ev.duration=dur;
+  }
+  if(!TEMPLATES[TI.dayType]) TEMPLATES[TI.dayType]={ wakeLabel:'起床時間', events:[] };
+  if(!TEMPLATES[TI.dayType].events) TEMPLATES[TI.dayType].events=[];
+  if(TI.editIdx===-1) TEMPLATES[TI.dayType].events.push(ev);
+  else TEMPLATES[TI.dayType].events[TI.editIdx]=ev;
+  closeTemplateItemModal(); renderTemplateList();
+  saveTemplateToFirestore(TI.dayType).catch(console.error);
+  showToast(TI.editIdx===-1?'✅ 追加しました':'✏️ 更新しました');
+}
+
+function handleDeleteTemplateItemModal(){
+  if(TI.editIdx===-1||!confirm('このテンプレートを削除しますか？')) return;
+  TEMPLATES[TI.dayType].events.splice(TI.editIdx,1);
+  closeTemplateItemModal(); renderTemplateList();
+  saveTemplateToFirestore(TI.dayType).catch(console.error);
+  showToast('🗑 削除しました');
+}
+
+// ── ドラッグ＆ドロップ（タッチ対応） ─────────────────
+const DND={ active:false, srcIdx:-1, curIdx:-1, ghost:null, srcEl:null, list:null, startY:0, startTop:0 };
+
+function setupTemplateListDnD(list){
+  DND.list=list;
+  list.querySelectorAll('.tmpl-drag-handle').forEach(handle=>{
+    handle.addEventListener('touchstart', onDndStart, { passive:false });
+  });
+}
+
+function onDndStart(e){
+  e.preventDefault();
+  const row=e.currentTarget.closest('.tmpl-item-row');
+  const items=[...DND.list.querySelectorAll('.tmpl-item-row')];
+  DND.srcIdx=items.indexOf(row); DND.curIdx=DND.srcIdx; DND.active=true; DND.srcEl=row;
+  const rect=row.getBoundingClientRect();
+  const ghost=row.cloneNode(true);
+  ghost.style.cssText=`position:fixed;top:${rect.top}px;left:${rect.left}px;width:${rect.width}px;z-index:2000;background:white;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,0.2);pointer-events:none;opacity:0.92;`;
+  document.body.appendChild(ghost); DND.ghost=ghost;
+  row.classList.add('dnd-dragging');
+  DND.startY=e.touches[0].clientY; DND.startTop=rect.top;
+}
+
+function onDndMove(e){
+  if(!DND.active) return; e.preventDefault();
+  const touch=e.touches[0];
+  DND.ghost.style.top=(DND.startTop+(touch.clientY-DND.startY))+'px';
+  const items=[...DND.list.querySelectorAll('.tmpl-item-row')];
+  let newIdx=DND.srcIdx;
+  items.forEach((item,i)=>{
+    if(i===DND.srcIdx) return;
+    const rect=item.getBoundingClientRect();
+    if(touch.clientY>rect.top+rect.height/2) newIdx=i;
+  });
+  if(newIdx!==DND.curIdx){
+    DND.curIdx=newIdx;
+    items.forEach(r=>r.classList.remove('dnd-above','dnd-below'));
+    if(newIdx!==DND.srcIdx) items[newIdx].classList.add(newIdx>DND.srcIdx?'dnd-below':'dnd-above');
+  }
+}
+
+function onDndEnd(){
+  if(!DND.active) return; DND.active=false;
+  if(DND.ghost){ DND.ghost.remove(); DND.ghost=null; }
+  if(DND.srcEl) DND.srcEl.classList.remove('dnd-dragging');
+  if(DND.list) DND.list.querySelectorAll('.tmpl-item-row').forEach(r=>r.classList.remove('dnd-above','dnd-below'));
+  if(DND.curIdx>=0&&DND.curIdx!==DND.srcIdx){
+    const evs=TEMPLATES[TI.dayType].events;
+    const [moved]=evs.splice(DND.srcIdx,1);
+    evs.splice(DND.curIdx,0,moved);
+    renderTemplateList();
+    saveTemplateToFirestore(TI.dayType).catch(console.error);
+    showToast('↕ 並び順を変更しました');
+  }
+  DND.srcIdx=-1; DND.curIdx=-1; DND.srcEl=null;
 }
 
 // ================================================================
@@ -990,6 +1311,7 @@ async function switchTab(tab){
   if(tab==='calendar'){ await loadCalMonth(S.calYear,S.calMonth); renderCalendar(); }
   else if(tab==='stats'){ document.getElementById('stats-month-label').textContent=`${S.statsYear}年${S.statsMonth}月`; renderStats(await loadStats(S.statsYear,S.statsMonth)); }
   else if(tab==='plank'){ renderPlankToday(); }
+  else if(tab==='settings'){ renderSettingsTab(); }
 }
 
 // ================================================================
@@ -1052,6 +1374,20 @@ function setupListeners(){
   document.getElementById('plank-start-btn').addEventListener('click',startPlankTimer);
   document.getElementById('plank-stop-btn').addEventListener('click',stopPlankTimer);
   document.getElementById('plank-complete-close').addEventListener('click',closePlankComplete);
+  // Settings tab - day type selector
+  document.querySelectorAll('.settings-dt-tab').forEach(b=>b.addEventListener('click',()=>{ TI.dayType=b.dataset.dt; renderSettingsTab(); }));
+  document.getElementById('tmpl-item-add-btn').addEventListener('click',()=>openTemplateItemModal(-1));
+  // Template item edit modal
+  document.getElementById('tmpl-item-modal-close').addEventListener('click',closeTemplateItemModal);
+  document.getElementById('tmpl-item-modal-cancel').addEventListener('click',closeTemplateItemModal);
+  document.getElementById('tmpl-item-modal-save').addEventListener('click',handleSaveTemplateItemModal);
+  document.getElementById('tmpl-item-modal-delete').addEventListener('click',handleDeleteTemplateItemModal);
+  document.getElementById('tmpl-item-modal').addEventListener('click',function(e){ if(e.target===this) closeTemplateItemModal(); });
+  document.querySelectorAll('.timing-type-btn').forEach(b=>b.addEventListener('click',()=>{ TI.timingType=b.dataset.timing; syncTimingUI(); }));
+  document.querySelectorAll('#ti-cat-picker .cat-btn').forEach(b=>b.addEventListener('click',()=>{ TI.cat=b.dataset.cat; document.querySelectorAll('#ti-cat-picker .cat-btn').forEach(c=>c.classList.toggle('selected',c.dataset.cat===TI.cat)); }));
+  // DnD - document level listeners (attached once)
+  document.addEventListener('touchmove', onDndMove, { passive:false });
+  document.addEventListener('touchend', onDndEnd);
 }
 
 // ================================================================
@@ -1063,7 +1399,7 @@ async function init(){
   const WDAYS=['日','月','火','水','木','金','土'];
   document.getElementById('header-date').textContent=`${now.getMonth()+1}月${now.getDate()}日（${WDAYS[now.getDay()]}）`;
   setupListeners();
-  try{ await loadDay(S.today); } catch(e){ console.error(e); }
+  try{ await Promise.all([loadDay(S.today), loadTemplatesFromFirestore()]); } catch(e){ console.error(e); }
   refreshDayType();
   document.getElementById('journal-text').value=S.journal;
   renderTimeline();
