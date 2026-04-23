@@ -77,12 +77,15 @@
     .fab { position: fixed; bottom: 24px; right: 20px; width: 52px; height: 52px; border-radius: 50%; background: #5B8DB8; color: white; font-size: 28px; border: none; box-shadow: 0 4px 14px rgba(91,141,184,0.45); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 100; }
     .fab:active { transform: scale(0.93); }
 
-    /* Journal */
-    .journal-section { padding: 10px 14px; background: white; border-top: 1px solid #E8E8E8; flex-shrink: 0; }
-    .journal-toggle { font-size: 13px; color: #5B8DB8; cursor: pointer; font-weight: 600; }
-    .journal-area { width: 100%; min-height: 56px; max-height: 100px; padding: 8px 10px; border: 1.5px solid #E0E0E0; border-radius: 10px; font-size: 14px; resize: none; font-family: inherit; margin-top: 8px; display: none; color: #2D3436; }
-    .journal-area.open { display: block; }
-    .journal-area:focus { outline: none; border-color: #5B8DB8; }
+    /* Journal button in template bar */
+    .journal-icon-btn { position: relative; width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid #E0E0E0; background: white; font-size: 16px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .journal-icon-btn.has-content { border-color: #5B8DB8; background: #EEF4FB; }
+    .journal-dot { position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; border-radius: 50%; background: #5B8DB8; border: 1.5px solid white; display: none; }
+    .journal-icon-btn.has-content .journal-dot { display: block; }
+    /* Journal Modal */
+    .journal-modal-date { font-size: 12px; color: #AAA; margin-bottom: 10px; }
+    .journal-modal-textarea { width: 100%; min-height: 180px; max-height: 300px; padding: 12px 14px; border: 1.5px solid #E0E0E0; border-radius: 12px; font-size: 15px; resize: none; font-family: inherit; color: #2D3436; line-height: 1.7; }
+    .journal-modal-textarea:focus { outline: none; border-color: #5B8DB8; }
 
     /* Calendar */
     .calendar-nav { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: white; border-bottom: 1px solid #E0E0E0; flex-shrink: 0; }
@@ -321,16 +324,15 @@
     <div class="template-bar">
       <button class="template-apply-btn" id="template-apply-btn">📋 ルーティンを配置</button>
       <span class="template-hint" id="template-hint">日タイプを選んでからタップ</span>
+      <button class="journal-icon-btn" id="journal-btn" title="メモ・ジャーナル">
+        ✏️<span class="journal-dot"></span>
+      </button>
     </div>
     <div class="timeline-wrapper" id="timeline-wrapper">
       <div class="timeline-header">
         <div>📋 予定</div><div></div><div>✅ 実績</div>
       </div>
       <div class="timeline-body" id="timeline-body"></div>
-    </div>
-    <div class="journal-section">
-      <div class="journal-toggle" id="journal-toggle">✏️ 今日のメモ・ジャーナル</div>
-      <textarea class="journal-area" id="journal-text" placeholder="今日思ったこと、気づいたこと..."></textarea>
     </div>
   </section>
 
@@ -506,6 +508,22 @@
     <div class="modal-actions">
       <button class="btn-cancel" id="tmpl-cancel">キャンセル</button>
       <button class="btn-save" id="tmpl-apply">配置する</button>
+    </div>
+  </div>
+</div>
+
+<!-- JOURNAL MODAL -->
+<div class="modal-overlay" id="journal-modal">
+  <div class="modal-sheet">
+    <div class="modal-top">
+      <div class="modal-title">✏️ 今日のメモ・ジャーナル</div>
+      <button class="modal-close" id="journal-modal-close">✕</button>
+    </div>
+    <div class="journal-modal-date" id="journal-modal-date"></div>
+    <textarea class="journal-modal-textarea" id="journal-modal-text" placeholder="今日思ったこと、気づいたこと、振り返りなど..."></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="journal-modal-cancel">キャンセル</button>
+      <button class="btn-save" id="journal-modal-save">💾 保存する</button>
     </div>
   </div>
 </div>
@@ -767,6 +785,29 @@ async function loadStats(y,m){
     }
   });
   return { dtc, rec, total:days, plankTotal, plankBest, plankSessions, plankByDay };
+}
+
+// ================================================================
+// ジャーナルモーダル
+// ================================================================
+function openJournalModal(){
+  const WDAYS=['日','月','火','水','木','金','土'];
+  const now=new Date();
+  document.getElementById('journal-modal-date').textContent=`${now.getMonth()+1}月${now.getDate()}日（${WDAYS[now.getDay()]}）`;
+  document.getElementById('journal-modal-text').value=S.journal;
+  document.getElementById('journal-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('journal-modal-text').focus(),300);
+}
+function closeJournalModal(){ document.getElementById('journal-modal').classList.remove('open'); }
+function saveJournalModal(){
+  S.journal=document.getElementById('journal-modal-text').value;
+  scheduleSave(); closeJournalModal();
+  refreshJournalBtn();
+  showToast('✏️ メモを保存しました');
+}
+function refreshJournalBtn(){
+  const btn=document.getElementById('journal-btn');
+  if(btn) btn.classList.toggle('has-content', !!(S.journal&&S.journal.trim()));
 }
 
 // ================================================================
@@ -1355,9 +1396,12 @@ function setupListeners(){
   // Stats
   document.getElementById('stats-prev').addEventListener('click',async()=>{ S.statsMonth--; if(S.statsMonth<1){S.statsMonth=12;S.statsYear--;} document.getElementById('stats-month-label').textContent=`${S.statsYear}年${S.statsMonth}月`; renderStats(await loadStats(S.statsYear,S.statsMonth)); });
   document.getElementById('stats-next').addEventListener('click',async()=>{ S.statsMonth++; if(S.statsMonth>12){S.statsMonth=1;S.statsYear++;} document.getElementById('stats-month-label').textContent=`${S.statsYear}年${S.statsMonth}月`; renderStats(await loadStats(S.statsYear,S.statsMonth)); });
-  // Journal
-  document.getElementById('journal-toggle').addEventListener('click',()=>document.getElementById('journal-text').classList.toggle('open'));
-  document.getElementById('journal-text').addEventListener('input',function(){ S.journal=this.value; scheduleSave(); });
+  // Journal modal
+  document.getElementById('journal-btn').addEventListener('click', openJournalModal);
+  document.getElementById('journal-modal-close').addEventListener('click', closeJournalModal);
+  document.getElementById('journal-modal-cancel').addEventListener('click', closeJournalModal);
+  document.getElementById('journal-modal-save').addEventListener('click', saveJournalModal);
+  document.getElementById('journal-modal').addEventListener('click', function(e){ if(e.target===this) closeJournalModal(); });
   // Plank presets
   document.querySelectorAll('.plank-preset-btn').forEach(btn=>{
     btn.addEventListener('click',()=>{
@@ -1401,7 +1445,7 @@ async function init(){
   setupListeners();
   try{ await Promise.all([loadDay(S.today), loadTemplatesFromFirestore()]); } catch(e){ console.error(e); }
   refreshDayType();
-  document.getElementById('journal-text').value=S.journal;
+  refreshJournalBtn();
   renderTimeline();
   document.getElementById('loading-overlay').classList.add('hidden');
   setInterval(()=>{ if(document.getElementById('tab-timeline').classList.contains('active')) renderTimeline(); },60000);
