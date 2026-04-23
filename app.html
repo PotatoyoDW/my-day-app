@@ -63,6 +63,10 @@
     .event-time-label { font-size: 9px; color: rgba(255,255,255,0.85); margin-top: 1px; }
     .event-block.light-cat .event-title,
     .event-block.light-cat .event-time-label { color: #555; }
+    .event-memo { font-size: 9px; color: rgba(255,255,255,0.8); margin-top: 2px; white-space: pre-line; line-height: 1.4; overflow: hidden; }
+    .event-block.light-cat .event-memo { color: rgba(0,0,0,0.5); }
+    .form-input.memo-input { min-height: 60px; resize: none; font-size: 13px; line-height: 1.6; }
+    .tmpl-item-memo-preview { font-size: 10px; color: #AAA; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .now-line { position: absolute; left: -2px; right: -2px; height: 2px; background: #E74C3C; z-index: 8; pointer-events: none; }
     .now-dot  { position: absolute; left: -3px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: #E74C3C; }
     .timer-row { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
@@ -482,6 +486,10 @@
         <button class="cat-btn selected" data-cat="その他">✨ その他</button>
       </div>
     </div>
+    <div class="form-group">
+      <label class="form-label">メモ（サプリ名など）</label>
+      <textarea class="form-input memo-input" id="event-memo" placeholder="例：・Lチロシン 2錠&#10;・ヘム鉄 2錠"></textarea>
+    </div>
     <div class="modal-actions">
       <button class="btn-cancel" id="modal-cancel">キャンセル</button>
       <button class="btn-delete" id="modal-delete" style="display:none">🗑</button>
@@ -581,6 +589,10 @@
         </div>
       </div>
     </div>
+    <div class="form-group">
+      <label class="form-label">メモ（サプリ名など）</label>
+      <textarea class="form-input memo-input" id="ti-memo" placeholder="例：・Lチロシン 2錠&#10;・ヘム鉄 2錠"></textarea>
+    </div>
     <div class="switch-row">
       <div class="switch-info">
         <div class="switch-label">予定＝実績として自動記録</div>
@@ -588,6 +600,16 @@
       </div>
       <label class="switch-toggle">
         <input type="checkbox" id="ti-auto-actual">
+        <span class="switch-slider"></span>
+      </label>
+    </div>
+    <div class="switch-row">
+      <div class="switch-info">
+        <div class="switch-label">デフォルトはチェック外し</div>
+        <div class="switch-sub">テンプレート配置時に最初からオフ（たまにしかやらないタスク用）</div>
+      </div>
+      <label class="switch-toggle">
+        <input type="checkbox" id="ti-default-off">
         <span class="switch-slider"></span>
       </label>
     </div>
@@ -640,21 +662,29 @@ const TEMPLATES = {
     wakeLabel: '起床時間',
     events: [
       { title:'朝の支度①',     duration:20, category:'生活' },
+      { title:'朝食前サプリ',   duration:5,  category:'生活', memo:'・Lチロシン 2錠（NatureIn）' },
       { title:'朝食・弁当準備', duration:30, category:'生活' },
+      { title:'朝食後サプリ',   duration:5,  category:'生活', memo:'・ヘム鉄 2錠（ディアナチュラ）' },
+      { title:'クレアチン',     duration:5,  category:'生活', memo:'・クレアチン 5g（NatureIn）', defaultOff:true },
       { title:'朝の支度②',     duration:20, category:'生活' },
-      { title:'移動（通勤）',  untilTime:'08:20', category:'生活' },
+      { title:'移動（通勤）',   untilTime:'08:20', category:'生活' },
       { title:'仕事', fixedStart:'08:20', fixedEnd:'18:10', category:'仕事', autoActual:true },
-      { title:'帰宅・移動', fixedStart:'18:10', duration:30, category:'生活' }
+      { title:'帰宅・移動', fixedStart:'18:10', duration:30, category:'生活' },
+      { title:'夕食後サプリ',   duration:5,  category:'生活', memo:'・大豆イソフラボン 1錠（ディアナチュラ）\n・マグネシウム 6錠（ディアナチュラ）' }
     ]
   },
   '在宅': {
     wakeLabel: '起床時間',
     events: [
       { title:'朝の支度',  duration:30, category:'生活' },
+      { title:'朝食前サプリ', duration:5, category:'生活', memo:'・Lチロシン 2錠（NatureIn）' },
       { title:'朝食',      duration:20, category:'生活' },
+      { title:'朝食後サプリ', duration:5, category:'生活', memo:'・ヘム鉄 2錠（ディアナチュラ）' },
+      { title:'クレアチン', duration:5, category:'生活', memo:'・クレアチン 5g（NatureIn）', defaultOff:true },
       { title:'午前の業務', fixedStart:'09:00', fixedEnd:'12:00', category:'仕事' },
       { title:'昼休憩',    fixedStart:'12:00', fixedEnd:'13:00', category:'休憩' },
-      { title:'午後の業務', fixedStart:'13:00', fixedEnd:'18:00', category:'仕事' }
+      { title:'午後の業務', fixedStart:'13:00', fixedEnd:'18:00', category:'仕事' },
+      { title:'夕食後サプリ', duration:5, category:'生活', memo:'・大豆イソフラボン 1錠（ディアナチュラ）\n・マグネシウム 6錠（ディアナチュラ）' }
     ]
   },
   '休日': {
@@ -689,20 +719,21 @@ function buildTemplateEvents(dayType, wakeTimeStr) {
   let cursor = minFromStr(wakeTimeStr);
   const events = [];
   for (const t of tmpl.events) {
+    const base = { id:genId(), title:t.title, category:t.category, memo:t.memo||'' };
     if (t.fixedStart && t.fixedEnd) {
-      events.push({ id:genId(), title:t.title, startTime:t.fixedStart, endTime:t.fixedEnd, category:t.category });
+      events.push({ ...base, startTime:t.fixedStart, endTime:t.fixedEnd });
       cursor = minFromStr(t.fixedEnd);
     } else if (t.fixedStart && t.duration) {
       const end = minFromStr(t.fixedStart) + t.duration;
-      events.push({ id:genId(), title:t.title, startTime:t.fixedStart, endTime:strFromMin(end), category:t.category });
+      events.push({ ...base, startTime:t.fixedStart, endTime:strFromMin(end) });
       cursor = end;
     } else if (t.untilTime) {
       const end = minFromStr(t.untilTime);
-      if (cursor < end - 5) events.push({ id:genId(), title:t.title, startTime:strFromMin(cursor), endTime:t.untilTime, category:t.category });
+      if (cursor < end - 5) events.push({ ...base, startTime:strFromMin(cursor), endTime:t.untilTime });
       cursor = end;
     } else if (t.duration) {
       const end = cursor + t.duration;
-      events.push({ id:genId(), title:t.title, startTime:strFromMin(cursor), endTime:strFromMin(end), category:t.category });
+      events.push({ ...base, startTime:strFromMin(cursor), endTime:strFromMin(end) });
       cursor = end;
     }
   }
@@ -855,8 +886,8 @@ function renderTemplateList(){
     row.innerHTML=`
       <span class="tmpl-drag-handle" data-idx="${i}">⠿</span>
       <div class="tmpl-item-info">
-        <div class="tmpl-item-title">${ev.title}</div>
-        <div class="tmpl-item-meta">${timingDesc(ev)}</div>
+        <div class="tmpl-item-title">${ev.title}${ev.defaultOff?' <span style="font-size:10px;color:#E76F51">たまに</span>':''}</div>
+        <div class="tmpl-item-meta">${timingDesc(ev)}${ev.memo?' 📝':''}</div>
       </div>
       ${ev.autoActual?'<span class="tmpl-item-auto-badge">予定+実績</span>':''}
       <span class="tmpl-item-cat">${ev.category||'その他'}</span>
@@ -875,7 +906,9 @@ function openTemplateItemModal(idx){
   document.getElementById('tmpl-item-modal-delete').style.display=isNew?'none':'';
   const ev=isNew?null:TEMPLATES[TI.dayType].events[idx];
   document.getElementById('ti-title').value=ev?.title||'';
+  document.getElementById('ti-memo').value=ev?.memo||'';
   document.getElementById('ti-auto-actual').checked=!!(ev?.autoActual);
+  document.getElementById('ti-default-off').checked=!!(ev?.defaultOff);
   // Category
   TI.cat=ev?.category||'その他';
   document.querySelectorAll('#ti-cat-picker .cat-btn').forEach(b=>b.classList.toggle('selected',b.dataset.cat===TI.cat));
@@ -903,7 +936,9 @@ function handleSaveTemplateItemModal(){
   const title=document.getElementById('ti-title').value.trim();
   if(!title){ showToast('タイトルを入力してください'); return; }
   const autoActual=document.getElementById('ti-auto-actual').checked;
-  const ev={ id:(TI.editIdx>=0?TEMPLATES[TI.dayType].events[TI.editIdx].id:null)||genId(), title, category:TI.cat, autoActual };
+  const defaultOff=document.getElementById('ti-default-off').checked;
+  const memo=document.getElementById('ti-memo').value;
+  const ev={ id:(TI.editIdx>=0?TEMPLATES[TI.dayType].events[TI.editIdx].id:null)||genId(), title, category:TI.cat, autoActual, defaultOff, memo };
   const t=TI.timingType;
   if(t==='duration'){
     const dur=parseInt(document.getElementById('ti-duration').value);
@@ -1038,6 +1073,7 @@ function mkEventBlock(ev,type,sh,eh){
   block.style.cssText=`top:${Math.max(0,top)}px;height:${Math.max(18,height-2)}px;background:${color};`;
   const t=document.createElement('div'); t.className='event-title'; t.textContent=ev.title; block.appendChild(t);
   if(height>=28){ const tl=document.createElement('div'); tl.className='event-time-label'; tl.textContent=`${ev.startTime}〜${ev.endTime}`; block.appendChild(tl); }
+  if(height>=54&&ev.memo){ const ml=document.createElement('div'); ml.className='event-memo'; ml.textContent=ev.memo; block.appendChild(ml); }
   block.addEventListener('click',e=>{ e.stopPropagation(); openEditModal(ev,type); });
   if(type==='planned'&&height>=38){
     const row=document.createElement('div'); row.className='timer-row';
@@ -1199,14 +1235,14 @@ function refreshDayType(){
 function openAddModal(mode,defStart){
   S.mMode=mode||'planned'; S.mCat='その他'; S.mEditId=null; S.mEditType=null;
   document.getElementById('modal-title').textContent='イベントを追加';
-  document.getElementById('event-title').value=''; document.getElementById('event-start').value=defStart||''; document.getElementById('event-end').value='';
+  document.getElementById('event-title').value=''; document.getElementById('event-start').value=defStart||''; document.getElementById('event-end').value=''; document.getElementById('event-memo').value='';
   document.getElementById('modal-delete').style.display='none'; document.getElementById('type-toggle-row').style.display=''; document.getElementById('modal-timer-section').style.display='none';
   document.getElementById('btn-manual-toggle').style.display='none'; document.getElementById('manual-time-section').style.display='none';
   syncModalUI(); document.getElementById('event-modal').classList.add('open');
 }
 function openEditModal(ev,type){
   S.mEditId=ev.id; S.mEditType=type; S.mMode=type; S.mCat=ev.category||'その他';
-  document.getElementById('modal-title').textContent='イベントを編集'; document.getElementById('event-title').value=ev.title; document.getElementById('event-start').value=ev.startTime; document.getElementById('event-end').value=ev.endTime;
+  document.getElementById('modal-title').textContent='イベントを編集'; document.getElementById('event-title').value=ev.title; document.getElementById('event-start').value=ev.startTime; document.getElementById('event-end').value=ev.endTime; document.getElementById('event-memo').value=ev.memo||'';
   document.getElementById('modal-delete').style.display=''; document.getElementById('type-toggle-row').style.display='none';
   const ts=document.getElementById('modal-timer-section');
   const manualToggle=document.getElementById('btn-manual-toggle');
@@ -1230,7 +1266,8 @@ function syncModalUI(){
 function handleSaveModal(){
   const title=document.getElementById('event-title').value.trim(), start=document.getElementById('event-start').value, end=document.getElementById('event-end').value;
   if(!title){ showToast('タイトルを入力してください'); return; } if(!start||!end){ showToast('時刻を入力してください'); return; } if(minFromStr(start)>=minFromStr(end)){ showToast('終了は開始より後にしてください'); return; }
-  const ev={id:S.mEditId||genId(),title,startTime:start,endTime:end,category:S.mCat};
+  const memo=document.getElementById('event-memo').value;
+  const ev={id:S.mEditId||genId(),title,startTime:start,endTime:end,category:S.mCat,memo};
   if(S.mEditId){ if(S.mEditType==='planned') S.planned=S.planned.map(e=>e.id===S.mEditId?ev:e); else S.actual=S.actual.map(e=>e.id===S.mEditId?ev:e); }
   else { if(S.mMode==='planned') S.planned.push(ev); else S.actual.push(ev); }
   closeModal(); renderTimeline(); scheduleSave(); showToast(S.mEditId?'✏️ 更新しました':'✅ 追加しました');
@@ -1256,13 +1293,18 @@ function updateTemplatePreview(){
   S.tmplEvs=buildTemplateEvents(S.dayType,wt);
   const tmpl=TEMPLATES[S.dayType];
   const autoTitles=new Set((tmpl?.events||[]).filter(e=>e.autoActual).map(e=>e.title));
+  const tmplEvDefs=(TEMPLATES[S.dayType]?.events)||[];
   document.getElementById('tmpl-preview').innerHTML=S.tmplEvs.length
-    ? S.tmplEvs.map((e,i)=>`
-        <div class="tmpl-preview-row">
-          <input type="checkbox" class="tmpl-check" data-idx="${i}" id="tmpl-check-${i}" checked>
+    ? S.tmplEvs.map((e,i)=>{
+        const def=tmplEvDefs[i]||{};
+        const isOff=!!(def.defaultOff);
+        const checkedAttr=isOff?'':'checked';
+        return `<div class="tmpl-preview-row">
+          <input type="checkbox" class="tmpl-check" data-idx="${i}" id="tmpl-check-${i}" ${checkedAttr}>
           <span class="tmpl-time">${e.startTime}〜${e.endTime}</span>
-          <label for="tmpl-check-${i}" class="tmpl-title" style="cursor:pointer;flex:1">${e.title}${autoTitles.has(e.title)?'<span class="tmpl-auto-badge">予定+実績</span>':''}</label>
-        </div>`).join('')
+          <label for="tmpl-check-${i}" class="tmpl-title" style="cursor:pointer;flex:1">${e.title}${autoTitles.has(e.title)?'<span class="tmpl-auto-badge">予定+実績</span>':''}${isOff?'<span class="tmpl-auto-badge" style="background:#FFF3EE;color:#E76F51">たまに</span>':''}</label>
+        </div>`;
+      }).join('')
     : '<div style="color:#AAA;font-size:13px;">イベントがありません</div>';
 }
 function applyTemplateModal(){
