@@ -241,6 +241,29 @@
     .modal-manual-time .form-label { color: #52B788; }
     .btn-manual-record { width: 100%; padding: 10px; border-radius: 8px; border: none; background: #52B788; color: white; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; }
 
+    /* ====== HAMBURGER DRAWER ====== */
+    .header-menu-btn { background: none; border: none; font-size: 22px; cursor: pointer; color: white; padding: 4px 0 4px 8px; line-height: 1; }
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 400; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+    .drawer-overlay.open { opacity: 1; pointer-events: all; }
+    .drawer-panel { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 401; box-shadow: -6px 0 24px rgba(0,0,0,0.15); transition: right 0.3s cubic-bezier(0.32,0.72,0,1); display: flex; flex-direction: column; }
+    .drawer-overlay.open .drawer-panel { right: 0; }
+    .drawer-head { padding: 52px 20px 16px; background: linear-gradient(135deg, #5B8DB8, #4A7AA8); }
+    .drawer-head-title { font-size: 18px; font-weight: 800; color: white; }
+    .drawer-head-sub { font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+    .drawer-section-label { font-size: 10px; font-weight: 700; color: #BBB; text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 20px 6px; }
+    .drawer-item { display: flex; align-items: center; gap: 14px; padding: 15px 20px; border-bottom: 1px solid #F5F5F5; cursor: pointer; background: white; border-left: none; border-right: none; border-top: none; width: 100%; text-align: left; transition: background 0.1s; }
+    .drawer-item:active { background: #F0F5FB; }
+    .drawer-item-icon { font-size: 22px; width: 32px; text-align: center; flex-shrink: 0; }
+    .drawer-item-text { flex: 1; }
+    .drawer-item-label { font-size: 15px; font-weight: 600; color: #2D3436; }
+    .drawer-item-desc { font-size: 11px; color: #AAA; margin-top: 2px; }
+    .drawer-item-arrow { font-size: 14px; color: #CCC; flex-shrink: 0; }
+    /* ページヘッダー（カレンダー・設定表示時） */
+    .page-header { display: none; align-items: center; gap: 10px; padding: 10px 14px; background: white; border-bottom: 1px solid #E0E0E0; flex-shrink: 0; }
+    .page-header.visible { display: flex; }
+    .page-back-btn { padding: 6px 10px; border-radius: 8px; border: 1px solid #E0E0E0; background: white; font-size: 13px; cursor: pointer; color: #5B8DB8; font-weight: 600; }
+    .page-header-title { font-size: 15px; font-weight: 700; color: #2D3436; }
+
     /* ====== SETTINGS TAB ====== */
     .settings-wrapper { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 24px; }
     .settings-wrapper::-webkit-scrollbar { display: none; }
@@ -307,14 +330,17 @@
   <header class="app-header">
     <h1>📅 My Day</h1>
     <div class="header-date" id="header-date"></div>
+    <button class="header-menu-btn" id="header-menu-btn">☰</button>
   </header>
   <nav class="tab-bar">
     <button class="tab-btn active" data-tab="timeline">今日</button>
-    <button class="tab-btn" data-tab="calendar">カレンダー</button>
     <button class="tab-btn" data-tab="stats">統計</button>
     <button class="tab-btn" data-tab="plank">🏋️</button>
-    <button class="tab-btn" data-tab="settings">⚙️ 設定</button>
   </nav>
+  <div class="page-header" id="page-header">
+    <button class="page-back-btn" id="page-back-btn">← 戻る</button>
+    <span class="page-header-title" id="page-header-title"></span>
+  </div>
 
   <!-- TODAY -->
   <section class="tab-content active" id="tab-timeline">
@@ -621,6 +647,33 @@
   </div>
 </div>
 
+<!-- HAMBURGER DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay">
+  <div class="drawer-panel">
+    <div class="drawer-head">
+      <div class="drawer-head-title">メニュー</div>
+      <div class="drawer-head-sub">設定・管理</div>
+    </div>
+    <div class="drawer-section-label">設定</div>
+    <button class="drawer-item" data-nav="settings">
+      <span class="drawer-item-icon">📋</span>
+      <div class="drawer-item-text">
+        <div class="drawer-item-label">テンプレート管理</div>
+        <div class="drawer-item-desc">日タイプごとのルーティンを編集</div>
+      </div>
+      <span class="drawer-item-arrow">›</span>
+    </button>
+    <button class="drawer-item" data-nav="calendar">
+      <span class="drawer-item-icon">📅</span>
+      <div class="drawer-item-text">
+        <div class="drawer-item-label">カレンダー管理</div>
+        <div class="drawer-item-desc">日毎に出勤・在宅などを設定</div>
+      </div>
+      <span class="drawer-item-arrow">›</span>
+    </button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -816,6 +869,19 @@ async function loadStats(y,m){
     }
   });
   return { dtc, rec, total:days, plankTotal, plankBest, plankSessions, plankByDay };
+}
+
+// ================================================================
+// ハンバーガードロワー
+// ================================================================
+const PAGE_TITLES = { settings:'📋 テンプレート管理', calendar:'📅 カレンダー管理' };
+const DRAWER_TABS = ['settings','calendar'];
+
+function openDrawer(){ document.getElementById('drawer-overlay').classList.add('open'); }
+function closeDrawer(){ document.getElementById('drawer-overlay').classList.remove('open'); }
+function navigateFromDrawer(tab){
+  closeDrawer();
+  switchTab(tab);
 }
 
 // ================================================================
@@ -1345,9 +1411,15 @@ function renderStats({dtc,rec,total,plankTotal,plankBest,plankSessions,plankByDa
 // Tab switching
 // ================================================================
 async function switchTab(tab){
+  // タブボタン：ドロワー管理のタブはアクティブにしない
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
   document.querySelectorAll('.tab-content').forEach(s=>s.classList.toggle('active',s.id===`tab-${tab}`));
   document.getElementById('fab-btn').style.display=tab==='timeline'?'':'none';
+  // ページヘッダー（カレンダー・設定のみ表示）
+  const pageHeader=document.getElementById('page-header');
+  const isDrawerTab=DRAWER_TABS.includes(tab);
+  pageHeader.classList.toggle('visible', isDrawerTab);
+  if(isDrawerTab) document.getElementById('page-header-title').textContent=PAGE_TITLES[tab]||'';
   if(tab==='calendar'){ await loadCalMonth(S.calYear,S.calMonth); renderCalendar(); }
   else if(tab==='stats'){ document.getElementById('stats-month-label').textContent=`${S.statsYear}年${S.statsMonth}月`; renderStats(await loadStats(S.statsYear,S.statsMonth)); }
   else if(tab==='plank'){ renderPlankToday(); }
@@ -1359,6 +1431,11 @@ async function switchTab(tab){
 // ================================================================
 function setupListeners(){
   document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+  // Hamburger drawer
+  document.getElementById('header-menu-btn').addEventListener('click', openDrawer);
+  document.getElementById('drawer-overlay').addEventListener('click', e=>{ if(!e.target.closest('.drawer-panel')||e.target.closest('.drawer-item')) return; closeDrawer(); });
+  document.querySelectorAll('.drawer-item[data-nav]').forEach(item=>item.addEventListener('click',()=>navigateFromDrawer(item.dataset.nav)));
+  document.getElementById('page-back-btn').addEventListener('click',()=>switchTab('timeline'));
   document.querySelectorAll('.day-type-btn').forEach(b=>b.addEventListener('click',()=>{ S.dayType=b.dataset.type; refreshDayType(); renderTimeline(); scheduleSave(); }));
   document.getElementById('fab-btn').addEventListener('click',()=>openAddModal('planned'));
   // Event modal
