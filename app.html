@@ -23,17 +23,16 @@
 
     /* Tabs */
     .tab-bar { display: flex; background: white; border-bottom: 1px solid #E0E0E0; flex-shrink: 0; }
-    .tab-btn { flex: 1; padding: 10px 0; font-size: 13px; font-weight: 500; color: #999; background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; }
+    .tab-btn { flex: 1; padding: 9px 0; font-size: 12px; font-weight: 500; color: #999; background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; }
     .tab-btn.active { color: #5B8DB8; border-bottom-color: #5B8DB8; }
 
-    /* Tab Content */
     .tab-content { display: none; flex: 1; overflow: hidden; flex-direction: column; }
     .tab-content.active { display: flex; }
 
     /* Day Type Bar */
     .day-type-bar { background: white; padding: 8px 12px; display: flex; gap: 6px; overflow-x: auto; border-bottom: 1px solid #E0E0E0; flex-shrink: 0; scrollbar-width: none; }
     .day-type-bar::-webkit-scrollbar { display: none; }
-    .day-type-btn { flex-shrink: 0; padding: 5px 10px; font-size: 12px; border: 1.5px solid #ddd; border-radius: 20px; background: white; color: #666; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+    .day-type-btn { flex-shrink: 0; padding: 5px 10px; font-size: 12px; border: 1.5px solid #ddd; border-radius: 20px; background: white; color: #666; cursor: pointer; white-space: nowrap; }
     .day-type-btn.selected { color: white; border-color: transparent; }
     .day-type-btn[data-type="出勤"].selected { background: #5B8DB8; }
     .day-type-btn[data-type="在宅"].selected { background: #52B788; }
@@ -43,8 +42,7 @@
 
     /* Template Bar */
     .template-bar { background: #F4F8FF; padding: 7px 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #E0E0E0; flex-shrink: 0; }
-    .template-apply-btn { flex-shrink: 0; padding: 5px 12px; font-size: 12px; font-weight: 600; border: 1.5px solid #5B8DB8; border-radius: 20px; background: white; color: #5B8DB8; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-    .template-apply-btn:active { background: #EEF4FB; }
+    .template-apply-btn { flex-shrink: 0; padding: 5px 12px; font-size: 12px; font-weight: 600; border: 1.5px solid #5B8DB8; border-radius: 20px; background: white; color: #5B8DB8; cursor: pointer; }
     .template-hint { font-size: 11px; color: #AAA; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     /* Timeline */
@@ -53,10 +51,10 @@
     .timeline-header { display: grid; grid-template-columns: 1fr 44px 1fr; background: #EEF4FB; padding: 6px 0; font-size: 12px; font-weight: 600; color: #5B8DB8; text-align: center; border-bottom: 1px solid #D0DCE8; position: sticky; top: 0; z-index: 10; }
     .timeline-body { display: grid; grid-template-columns: 1fr 44px 1fr; }
     .event-col { position: relative; }
-    .event-col-left { border-right: 1px solid #EEE; background: #FAFBFC; }
-    .event-col-right { border-left: 1px solid #EEE; background: #FAFBFC; }
-    .time-label-col { position: relative; background: #F8F9FA; }
-    .hour-line { position: absolute; left: 0; right: 0; border-top: 1px solid #EBEBEB; z-index: 1; pointer-events: none; }
+    .event-col-left  { border-right: 1px solid #EEE; background: #FAFBFC; }
+    .event-col-right { border-left:  1px solid #EEE; background: #FAFBFC; }
+    .time-label-col  { position: relative; background: #F8F9FA; }
+    .hour-line      { position: absolute; left: 0; right: 0; border-top: 1px solid #EBEBEB; z-index: 1; pointer-events: none; }
     .half-hour-line { position: absolute; left: 0; right: 0; border-top: 1px dashed #F0F0F0; z-index: 1; pointer-events: none; }
     .time-marker { position: absolute; width: 100%; display: flex; align-items: flex-start; justify-content: center; z-index: 5; padding-top: 2px; }
     .time-marker span { font-size: 9px; color: #BBB; font-weight: 500; }
@@ -66,24 +64,22 @@
     .event-block.light-cat .event-title,
     .event-block.light-cat .event-time-label { color: #555; }
     .now-line { position: absolute; left: -2px; right: -2px; height: 2px; background: #E74C3C; z-index: 8; pointer-events: none; }
-    .now-dot { position: absolute; left: -3px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: #E74C3C; }
-
-    /* Timer buttons on planned events */
+    .now-dot  { position: absolute; left: -3px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: #E74C3C; }
     .timer-row { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
-    .timer-btn { padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; line-height: 1.6; }
+    .timer-btn { padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; border: none; cursor: pointer; line-height: 1.6; }
     .timer-start-btn { background: rgba(255,255,255,0.28); color: white; }
-    .timer-end-btn { background: rgba(255,255,255,0.92); color: #16A661; }
+    .timer-end-btn   { background: rgba(255,255,255,0.92); color: #16A661; }
     .timer-running-label { font-size: 9px; color: rgba(255,255,255,0.88); display: flex; align-items: center; gap: 3px; }
-    .timer-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #FF6B6B; animation: blink 1s ease-in-out infinite; }
+    .blink-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #FF6B6B; animation: blink 1s ease-in-out infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
     /* FAB */
-    .fab { position: fixed; bottom: 24px; right: 20px; width: 52px; height: 52px; border-radius: 50%; background: #5B8DB8; color: white; font-size: 28px; border: none; box-shadow: 0 4px 14px rgba(91,141,184,0.45); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 100; -webkit-tap-highlight-color: transparent; }
+    .fab { position: fixed; bottom: 24px; right: 20px; width: 52px; height: 52px; border-radius: 50%; background: #5B8DB8; color: white; font-size: 28px; border: none; box-shadow: 0 4px 14px rgba(91,141,184,0.45); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 100; }
     .fab:active { transform: scale(0.93); }
 
     /* Journal */
     .journal-section { padding: 10px 14px; background: white; border-top: 1px solid #E8E8E8; flex-shrink: 0; }
-    .journal-toggle { font-size: 13px; color: #5B8DB8; cursor: pointer; font-weight: 600; user-select: none; }
+    .journal-toggle { font-size: 13px; color: #5B8DB8; cursor: pointer; font-weight: 600; }
     .journal-area { width: 100%; min-height: 56px; max-height: 100px; padding: 8px 10px; border: 1.5px solid #E0E0E0; border-radius: 10px; font-size: 14px; resize: none; font-family: inherit; margin-top: 8px; display: none; color: #2D3436; }
     .journal-area.open { display: block; }
     .journal-area:focus { outline: none; border-color: #5B8DB8; }
@@ -104,7 +100,7 @@
     .calendar-day-wday.sun { color: #E74C3C; }
     .calendar-day-wday.sat { color: #5B8DB8; }
     .day-type-chips { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; }
-    .day-type-chip { padding: 3px 7px; border-radius: 12px; font-size: 11px; border: 1.5px solid #E0E0E0; background: white; cursor: pointer; color: #999; -webkit-tap-highlight-color: transparent; }
+    .day-type-chip { padding: 3px 7px; border-radius: 12px; font-size: 11px; border: 1.5px solid #E0E0E0; background: white; cursor: pointer; color: #999; }
     .day-type-chip.active { color: white; border-color: transparent; font-weight: 600; }
     .day-type-chip[data-type="出勤"].active { background: #5B8DB8; }
     .day-type-chip[data-type="在宅"].active { background: #52B788; }
@@ -126,9 +122,70 @@
     .dt-stat-emoji { font-size: 20px; }
     .dt-stat-count { font-size: 22px; font-weight: 800; color: #2D3436; line-height: 1.2; }
     .dt-stat-label { font-size: 10px; color: #AAA; margin-top: 2px; }
-    .summary-text { font-size: 14px; line-height: 1.7; color: #636e72; }
+    .plank-stat-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #F5F5F5; }
+    .plank-stat-row:last-child { border-bottom: none; }
+    .plank-stat-label { font-size: 13px; color: #636e72; }
+    .plank-stat-value { font-size: 15px; font-weight: 700; color: #2D3436; }
+    .plank-stat-value.best { color: #E76F51; }
+    .plank-daily-bar-wrap { margin-top: 10px; }
+    .plank-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .plank-bar-date { font-size: 10px; color: #AAA; width: 28px; text-align: right; flex-shrink: 0; }
+    .plank-bar-bg { flex: 1; height: 12px; background: #F0F0F0; border-radius: 6px; overflow: hidden; }
+    .plank-bar-fill { height: 100%; border-radius: 6px; background: linear-gradient(to right, #F4A261, #E76F51); min-width: 4px; }
+    .plank-bar-sec { font-size: 10px; color: #999; width: 30px; flex-shrink: 0; }
 
-    /* Modal (shared) */
+    /* ====== PLANK TAB ====== */
+    .plank-tab-wrapper { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .plank-tab-wrapper::-webkit-scrollbar { display: none; }
+    .plank-setup { padding: 24px 20px; }
+    .plank-setup-title { font-size: 22px; font-weight: 800; color: #2D3436; margin-bottom: 4px; }
+    .plank-setup-sub { font-size: 13px; color: #AAA; margin-bottom: 24px; }
+    .plank-section-label { font-size: 11px; font-weight: 700; color: #AAA; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+    .plank-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .plank-preset-btn { padding: 10px 14px; border-radius: 12px; border: 2px solid #E0E0E0; background: white; font-size: 14px; font-weight: 700; cursor: pointer; color: #555; transition: all 0.15s; }
+    .plank-preset-btn.selected { border-color: #E76F51; color: #E76F51; background: #FFF3EE; }
+    .plank-custom-row { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+    .plank-custom-row input { width: 80px; padding: 10px 12px; border: 1.5px solid #E0E0E0; border-radius: 10px; font-size: 18px; font-weight: 700; text-align: center; color: #2D3436; -webkit-appearance: none; }
+    .plank-custom-row input:focus { outline: none; border-color: #E76F51; }
+    .plank-custom-row span { font-size: 16px; color: #555; font-weight: 600; }
+    .plank-start-btn { width: 100%; padding: 18px; border: none; border-radius: 16px; background: linear-gradient(135deg, #F4A261, #E76F51); color: white; font-size: 18px; font-weight: 800; cursor: pointer; box-shadow: 0 6px 20px rgba(231,111,81,0.35); letter-spacing: 0.5px; }
+    .plank-start-btn:active { transform: scale(0.97); }
+    .plank-today-section { margin-top: 28px; }
+    .plank-record-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #F0F0F0; }
+    .plank-record-row:last-child { border-bottom: none; }
+    .plank-record-time { font-size: 12px; color: #AAA; width: 44px; }
+    .plank-record-secs { font-size: 16px; font-weight: 800; color: #2D3436; }
+    .plank-record-badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+    .badge-done { background: #EFF9F4; color: #16A661; }
+    .badge-stop { background: #FFF3EE; color: #E76F51; }
+    .plank-no-record { font-size: 13px; color: #CCC; padding: 16px 0; text-align: center; }
+
+    /* ====== PLANK FULL-SCREEN TIMER OVERLAY ====== */
+    .plank-overlay { position: fixed; inset: 0; background: #0D1117; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s; }
+    .plank-overlay.active { opacity: 1; pointer-events: all; }
+    .plank-overlay-status { font-size: 14px; color: rgba(255,255,255,0.5); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 32px; }
+    .plank-ring-wrap { position: relative; width: 260px; height: 260px; margin-bottom: 20px; }
+    .plank-ring-svg { transform: rotate(-90deg); }
+    .plank-ring-bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 14; }
+    .plank-ring-prog { fill: none; stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 0.9s linear, stroke 0.5s; }
+    .plank-ring-display { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .plank-ring-seconds { font-size: 72px; font-weight: 800; color: white; line-height: 1; font-variant-numeric: tabular-nums; }
+    .plank-ring-unit { font-size: 16px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+    .plank-motivate { font-size: 18px; font-weight: 700; color: rgba(255,255,255,0.8); margin-bottom: 48px; min-height: 28px; text-align: center; transition: opacity 0.4s; }
+    .plank-stop-btn { padding: 14px 40px; border-radius: 50px; border: 2px solid rgba(255,255,255,0.2); background: transparent; color: rgba(255,255,255,0.6); font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 0.5px; }
+    .plank-stop-btn:active { background: rgba(255,255,255,0.1); }
+
+    /* Plank complete screen */
+    .plank-complete { position: fixed; inset: 0; background: linear-gradient(160deg, #1A1A2E, #16213E); z-index: 1001; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.5s; }
+    .plank-complete.active { opacity: 1; pointer-events: all; }
+    .plank-complete-emoji { font-size: 72px; margin-bottom: 16px; animation: popIn 0.4s ease; }
+    @keyframes popIn { 0%{transform:scale(0.3);opacity:0} 70%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
+    .plank-complete-title { font-size: 28px; font-weight: 800; color: white; margin-bottom: 8px; }
+    .plank-complete-secs { font-size: 56px; font-weight: 800; color: #F4A261; margin-bottom: 6px; font-variant-numeric: tabular-nums; }
+    .plank-complete-unit { font-size: 18px; color: rgba(255,255,255,0.5); margin-bottom: 48px; }
+    .plank-complete-close { padding: 14px 48px; border-radius: 50px; border: none; background: white; color: #2D3436; font-size: 16px; font-weight: 700; cursor: pointer; }
+
+    /* Modal */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
     .modal-sheet { width: 100%; max-width: 430px; margin: 0 auto; background: white; border-radius: 20px 20px 0 0; padding: 20px 16px 40px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); }
@@ -147,14 +204,12 @@
     .form-row { display: flex; gap: 10px; }
     .form-row .form-group { flex: 1; }
     .cat-picker { display: flex; flex-wrap: wrap; gap: 6px; }
-    .cat-btn { padding: 6px 10px; border-radius: 8px; border: 1.5px solid #E8E8E8; background: white; font-size: 12px; cursor: pointer; color: #666; -webkit-tap-highlight-color: transparent; }
+    .cat-btn { padding: 6px 10px; border-radius: 8px; border: 1.5px solid #E8E8E8; background: white; font-size: 12px; cursor: pointer; color: #666; }
     .cat-btn.selected { border-color: #5B8DB8; background: #EEF4FB; color: #5B8DB8; font-weight: 600; }
     .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
     .btn-cancel { flex: 1; padding: 13px; border-radius: 10px; border: 1.5px solid #E0E0E0; background: white; font-size: 15px; cursor: pointer; color: #666; }
     .btn-delete { width: 46px; padding: 13px; border-radius: 10px; border: 1.5px solid #FDDEDE; background: #FFF5F5; color: #E74C3C; font-size: 15px; cursor: pointer; }
     .btn-save { flex: 2; padding: 13px; border-radius: 10px; border: none; background: #5B8DB8; color: white; font-size: 15px; font-weight: 600; cursor: pointer; }
-
-    /* Modal timer section */
     .modal-timer-section { background: #F4F8FF; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
     .modal-timer-section.running { background: #EFF9F4; }
     .modal-timer-label { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px; }
@@ -162,14 +217,11 @@
     .btn-timer { width: 100%; padding: 10px; border-radius: 8px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; }
     .btn-timer-start { background: #5B8DB8; color: white; }
     .btn-timer-stop  { background: #16A661; color: white; }
-
-    /* Template modal */
     .tmpl-preview { background: #F8F9FA; border-radius: 10px; padding: 10px 12px; margin: 12px 0; max-height: 200px; overflow-y: auto; }
     .tmpl-preview-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid #EEE; font-size: 13px; }
     .tmpl-preview-row:last-child { border-bottom: none; }
     .tmpl-time { font-size: 11px; color: #AAA; width: 90px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
     .tmpl-title { color: #2D3436; font-weight: 500; }
-    .tmpl-note { font-size: 12px; color: #AAA; margin-top: 6px; line-height: 1.5; }
     .tmpl-replace-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
     .tmpl-replace-row label { font-size: 13px; color: #555; display: flex; align-items: center; gap: 6px; cursor: pointer; }
     .tmpl-replace-row input[type=checkbox] { width: 16px; height: 16px; accent-color: #5B8DB8; cursor: pointer; }
@@ -202,9 +254,10 @@
     <button class="tab-btn active" data-tab="timeline">今日</button>
     <button class="tab-btn" data-tab="calendar">カレンダー</button>
     <button class="tab-btn" data-tab="stats">統計</button>
+    <button class="tab-btn" data-tab="plank">🏋️ プランク</button>
   </nav>
 
-  <!-- ===== TODAY TAB ===== -->
+  <!-- TODAY -->
   <section class="tab-content active" id="tab-timeline">
     <div class="day-type-bar">
       <button class="day-type-btn" data-type="出勤">🏢 出勤</button>
@@ -229,7 +282,7 @@
     </div>
   </section>
 
-  <!-- ===== CALENDAR TAB ===== -->
+  <!-- CALENDAR -->
   <section class="tab-content" id="tab-calendar">
     <div class="calendar-nav">
       <button class="nav-btn" id="cal-prev">＜</button>
@@ -242,7 +295,7 @@
     </div>
   </section>
 
-  <!-- ===== STATS TAB ===== -->
+  <!-- STATS -->
   <section class="tab-content" id="tab-stats">
     <div class="stats-wrapper">
       <div class="stats-month-nav">
@@ -253,11 +306,65 @@
       <div id="stats-content"></div>
     </div>
   </section>
+
+  <!-- PLANK -->
+  <section class="tab-content" id="tab-plank">
+    <div class="plank-tab-wrapper">
+      <div class="plank-setup">
+        <div class="plank-setup-title">🏋️ プランクタイマー</div>
+        <div class="plank-setup-sub">毎日コツコツ、体幹を鍛えよう</div>
+        <div class="plank-section-label">目標タイム</div>
+        <div class="plank-presets" id="plank-presets">
+          <button class="plank-preset-btn" data-secs="30">30秒</button>
+          <button class="plank-preset-btn selected" data-secs="60">60秒</button>
+          <button class="plank-preset-btn" data-secs="90">90秒</button>
+          <button class="plank-preset-btn" data-secs="120">2分</button>
+          <button class="plank-preset-btn" data-secs="180">3分</button>
+        </div>
+        <div class="plank-custom-row">
+          <input type="number" id="plank-secs-input" min="10" max="600" value="60">
+          <span>秒</span>
+        </div>
+        <button class="plank-start-btn" id="plank-start-btn">🏋️ スタート！</button>
+        <div class="plank-today-section">
+          <div class="plank-section-label" style="margin-top:0">今日の記録</div>
+          <div id="plank-today-records"></div>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 
 <button class="fab" id="fab-btn">＋</button>
 
-<!-- ===== EVENT MODAL ===== -->
+<!-- PLANK TIMER OVERLAY -->
+<div class="plank-overlay" id="plank-overlay">
+  <div class="plank-overlay-status" id="plank-overlay-status">PLANK</div>
+  <div class="plank-ring-wrap">
+    <svg class="plank-ring-svg" width="260" height="260" viewBox="0 0 260 260">
+      <circle class="plank-ring-bg" cx="130" cy="130" r="110"/>
+      <circle class="plank-ring-prog" id="plank-ring-prog" cx="130" cy="130" r="110"
+        stroke-dasharray="691" stroke-dashoffset="0" stroke="#F4A261"/>
+    </svg>
+    <div class="plank-ring-display">
+      <div class="plank-ring-seconds" id="plank-ring-seconds">60</div>
+      <div class="plank-ring-unit">秒</div>
+    </div>
+  </div>
+  <div class="plank-motivate" id="plank-motivate">よし、行くぞ！🔥</div>
+  <button class="plank-stop-btn" id="plank-stop-btn">■ ストップ</button>
+</div>
+
+<!-- PLANK COMPLETE OVERLAY -->
+<div class="plank-complete" id="plank-complete">
+  <div class="plank-complete-emoji">🎉</div>
+  <div class="plank-complete-title">達成！！</div>
+  <div class="plank-complete-secs" id="complete-secs">60</div>
+  <div class="plank-complete-unit">秒 クリア！</div>
+  <button class="plank-complete-close" id="plank-complete-close">閉じる</button>
+</div>
+
+<!-- EVENT MODAL -->
 <div class="modal-overlay" id="event-modal">
   <div class="modal-sheet">
     <div class="modal-top">
@@ -268,11 +375,10 @@
       <button class="type-toggle-btn planned active" id="toggle-planned">📋 予定</button>
       <button class="type-toggle-btn actual"          id="toggle-actual">✅ 実績</button>
     </div>
-    <!-- タイマーセクション（予定イベント編集時のみ表示） -->
     <div id="modal-timer-section" class="modal-timer-section" style="display:none">
       <div class="modal-timer-label">⏱ タイマー</div>
       <div id="modal-timer-running" class="modal-timer-running" style="display:none">
-        <span class="timer-dot"></span><span id="modal-timer-start-label"></span>〜進行中
+        <span class="blink-dot"></span><span id="modal-timer-start-label"></span>〜進行中
       </div>
       <button class="btn-timer btn-timer-start" id="btn-timer-action">▶ 今すぐ開始</button>
     </div>
@@ -303,7 +409,7 @@
   </div>
 </div>
 
-<!-- ===== TEMPLATE MODAL ===== -->
+<!-- TEMPLATE MODAL -->
 <div class="modal-overlay" id="template-modal">
   <div class="modal-sheet">
     <div class="modal-top">
@@ -316,10 +422,7 @@
     </div>
     <div class="tmpl-preview" id="tmpl-preview"></div>
     <div class="tmpl-replace-row">
-      <label>
-        <input type="checkbox" id="tmpl-replace-check" checked>
-        既存の予定を置き換える
-      </label>
+      <label><input type="checkbox" id="tmpl-replace-check" checked>既存の予定を置き換える</label>
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" id="tmpl-cancel">キャンセル</button>
@@ -331,9 +434,9 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ============================================================
+// ================================================================
 // Firebase
-// ============================================================
+// ================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyBthgTbNsawAVyYYwj1Agq6y-rtXsYAk4w",
   authDomain: "my-day-app-adhd55.firebaseapp.com",
@@ -346,25 +449,24 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
 
-// ============================================================
+// ================================================================
 // 定数
-// ============================================================
-const HOUR_PX = 64;
-const WORK_TYPES = ['出勤', '在宅', '出張'];
-const DAY_TYPES = ['出勤', '在宅', '休日', '旅行', '出張'];
-const DT_EMOJI = { '出勤':'🏢', '在宅':'🏠', '休日':'😴', '旅行':'🌄', '出張':'✈️' };
+// ================================================================
+const HOUR_PX    = 64;
+const WORK_TYPES = ['出勤','在宅','出張'];
+const DAY_TYPES  = ['出勤','在宅','休日','旅行','出張'];
+const DT_EMOJI   = { '出勤':'🏢','在宅':'🏠','休日':'😴','旅行':'🌄','出張':'✈️' };
 const CAT_COLORS = {
   planned: { '仕事':'#3A7BD5','生活':'#5FA8D3','勉強':'#7C6FD4','運動':'#00A878','休憩':'#E8A820','その他':'#95A5A6' },
   actual:  { '仕事':'#27AE60','生活':'#1FA098','勉強':'#9B59B6','運動':'#16A661','休憩':'#E8A820','その他':'#7F8C8D' }
 };
 const CAT_LIGHT = ['休憩'];
+const RING_R = 110;
+const RING_C = 2 * Math.PI * RING_R; // ≈ 691
 
-// ============================================================
-// ルーティンテンプレート定義
-// ※ fixedStart/fixedEnd = 固定時刻
-// ※ duration = 分数（前のイベント終了から連続）
-// ※ untilTime = この固定時刻まで（移動など）
-// ============================================================
+// ================================================================
+// ルーティンテンプレート
+// ================================================================
 const TEMPLATES = {
   '出勤': {
     wakeLabel: '起床時間',
@@ -414,194 +516,154 @@ const TEMPLATES = {
   }
 };
 
-// ============================================================
-// テンプレート適用ロジック
-// ============================================================
 function buildTemplateEvents(dayType, wakeTimeStr) {
-  const tmpl = TEMPLATES[dayType];
-  if (!tmpl) return [];
+  const tmpl = TEMPLATES[dayType]; if (!tmpl) return [];
   let cursor = minFromStr(wakeTimeStr);
   const events = [];
-
-  for (const tev of tmpl.events) {
-    if (tev.fixedStart && tev.fixedEnd) {
-      // 完全固定
-      events.push({ id:genId(), title:tev.title, startTime:tev.fixedStart, endTime:tev.fixedEnd, category:tev.category });
-      cursor = minFromStr(tev.fixedEnd);
-
-    } else if (tev.fixedStart && tev.duration) {
-      // 開始固定・長さ指定
-      const end = minFromStr(tev.fixedStart) + tev.duration;
-      events.push({ id:genId(), title:tev.title, startTime:tev.fixedStart, endTime:strFromMin(end), category:tev.category });
+  for (const t of tmpl.events) {
+    if (t.fixedStart && t.fixedEnd) {
+      events.push({ id:genId(), title:t.title, startTime:t.fixedStart, endTime:t.fixedEnd, category:t.category });
+      cursor = minFromStr(t.fixedEnd);
+    } else if (t.fixedStart && t.duration) {
+      const end = minFromStr(t.fixedStart) + t.duration;
+      events.push({ id:genId(), title:t.title, startTime:t.fixedStart, endTime:strFromMin(end), category:t.category });
       cursor = end;
-
-    } else if (tev.untilTime) {
-      // 相対開始・終了時刻固定（移動など）
-      const end = minFromStr(tev.untilTime);
-      if (cursor < end - 5) { // 5分以上あれば追加
-        events.push({ id:genId(), title:tev.title, startTime:strFromMin(cursor), endTime:tev.untilTime, category:tev.category });
-      }
+    } else if (t.untilTime) {
+      const end = minFromStr(t.untilTime);
+      if (cursor < end - 5) events.push({ id:genId(), title:t.title, startTime:strFromMin(cursor), endTime:t.untilTime, category:t.category });
       cursor = end;
-
-    } else if (tev.duration) {
-      // 相対開始・長さ指定
-      const end = cursor + tev.duration;
-      events.push({ id:genId(), title:tev.title, startTime:strFromMin(cursor), endTime:strFromMin(end), category:tev.category });
+    } else if (t.duration) {
+      const end = cursor + t.duration;
+      events.push({ id:genId(), title:t.title, startTime:strFromMin(cursor), endTime:strFromMin(end), category:t.category });
       cursor = end;
     }
   }
   return events;
 }
 
-// ============================================================
+// ================================================================
 // アプリ状態
-// ============================================================
+// ================================================================
 const S = {
-  today: '',
-  dayType: '',
-  planned: [],
-  actual: [],
-  journal: '',
+  today:'', dayType:'', planned:[], actual:[], journal:'', plankRecords:[],
   calYear:0, calMonth:0, calDayTypes:{},
   statsYear:0, statsMonth:0,
-  saveTimer: null,
-  timers: {},
-  mMode:'planned', mCat:'その他', mEditId:null, mEditType:null
+  saveTimer:null, timers:{},
+  mMode:'planned', mCat:'その他', mEditId:null, mEditType:null,
+  // plank timer
+  plankTarget:60, plankRemaining:60, plankInterval:null, plankStartedAt:null
 };
 
-// ============================================================
+// ================================================================
 // ユーティリティ
-// ============================================================
-function toDateStr(d) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-function minFromStr(s) { const [h,m]=s.split(':').map(Number); return h*60+m; }
-function strFromMin(n) { return `${String(Math.floor(n/60)).padStart(2,'0')}:${String(n%60).padStart(2,'0')}`; }
-function genId() { return Date.now().toString(36)+Math.random().toString(36).slice(2); }
-function getTimeBounds(dt) { return WORK_TYPES.includes(dt) ? {s:4,e:23} : {s:0,e:24}; }
-function showToast(msg) {
-  const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'),2300);
-}
-function nowTimeStr() { const n=new Date(); return strFromMin(n.getHours()*60+n.getMinutes()); }
+// ================================================================
+function toDateStr(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function minFromStr(s){ const [h,m]=s.split(':').map(Number); return h*60+m; }
+function strFromMin(n){ return `${String(Math.floor(n/60)).padStart(2,'0')}:${String(n%60).padStart(2,'0')}`; }
+function genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2); }
+function getTimeBounds(dt){ return WORK_TYPES.includes(dt)?{s:4,e:23}:{s:0,e:24}; }
+function showToast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2300); }
+function nowTimeStr(){ const n=new Date(); return strFromMin(n.getHours()*60+n.getMinutes()); }
+function fmtSecs(s){ return s>=60 ? `${Math.floor(s/60)}分${s%60>0?s%60+'秒':''}` : `${s}秒`; }
+function vibrate(pattern){ if(navigator.vibrate) navigator.vibrate(pattern); }
 
-// ============================================================
+// ================================================================
 // Firestore
-// ============================================================
-async function loadDay(ds) {
-  const snap = await db.collection('days').doc(ds).get();
-  if (snap.exists) {
-    const d = snap.data();
-    S.dayType  = d.dayType  || '';
-    S.planned  = d.planned  || [];
-    S.actual   = d.actual   || [];
-    S.journal  = d.journal  || '';
-  } else {
-    S.dayType=''; S.planned=[]; S.actual=[]; S.journal='';
-  }
+// ================================================================
+async function loadDay(ds){
+  const snap=await db.collection('days').doc(ds).get();
+  if(snap.exists){
+    const d=snap.data();
+    S.dayType=d.dayType||''; S.planned=d.planned||[]; S.actual=d.actual||[]; S.journal=d.journal||''; S.plankRecords=d.plankRecords||[];
+  } else { S.dayType=''; S.planned=[]; S.actual=[]; S.journal=''; S.plankRecords=[]; }
 }
-async function saveDay() {
+async function saveDay(){
   await db.collection('days').doc(S.today).set({
-    date:S.today, dayType:S.dayType, planned:S.planned, actual:S.actual, journal:S.journal,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  }, { merge:true });
+    date:S.today, dayType:S.dayType, planned:S.planned, actual:S.actual, journal:S.journal, plankRecords:S.plankRecords,
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  },{merge:true});
 }
-function scheduleSave() { clearTimeout(S.saveTimer); S.saveTimer=setTimeout(()=>saveDay().catch(console.error),900); }
+function scheduleSave(){ clearTimeout(S.saveTimer); S.saveTimer=setTimeout(()=>saveDay().catch(console.error),900); }
 
-async function loadCalMonth(y,m) {
+async function loadCalMonth(y,m){
   const days=new Date(y,m,0).getDate();
   const dates=Array.from({length:days},(_,i)=>`${y}-${String(m).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`);
   const snaps=await Promise.all(dates.map(ds=>db.collection('days').doc(ds).get()));
   S.calDayTypes={};
   snaps.forEach((snap,i)=>{ if(snap.exists&&snap.data().dayType) S.calDayTypes[dates[i]]=snap.data().dayType; });
 }
-async function saveCalMonth() {
+async function saveCalMonth(){
   const batch=db.batch();
   Object.entries(S.calDayTypes).forEach(([ds,dt])=>batch.set(db.collection('days').doc(ds),{dayType:dt,date:ds},{merge:true}));
   await batch.commit();
 }
-async function loadStats(y,m) {
+async function loadStats(y,m){
   const days=new Date(y,m,0).getDate();
   const dates=Array.from({length:days},(_,i)=>`${y}-${String(m).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`);
   const snaps=await Promise.all(dates.map(ds=>db.collection('days').doc(ds).get()));
-  const dtc={}; let rec=0;
-  snaps.forEach(snap=>{ if(!snap.exists) return; rec++; const d=snap.data(); if(d.dayType) dtc[d.dayType]=(dtc[d.dayType]||0)+1; });
-  return { dtc, rec, total:days };
+  const dtc={}, plankByDay={}; let rec=0, plankTotal=0, plankBest=0, plankSessions=0;
+  snaps.forEach((snap,i)=>{
+    if(!snap.exists) return; rec++;
+    const d=snap.data();
+    if(d.dayType) dtc[d.dayType]=(dtc[d.dayType]||0)+1;
+    if(d.plankRecords&&d.plankRecords.length){
+      const dayTotal=d.plankRecords.reduce((s,r)=>s+r.actual,0);
+      plankByDay[dates[i]]=dayTotal;
+      plankTotal+=dayTotal;
+      plankSessions+=d.plankRecords.length;
+      const best=Math.max(...d.plankRecords.map(r=>r.actual));
+      if(best>plankBest) plankBest=best;
+    }
+  });
+  return { dtc, rec, total:days, plankTotal, plankBest, plankSessions, plankByDay };
 }
 
-// ============================================================
-// タイムライン描画
-// ============================================================
-function renderTimeline() {
+// ================================================================
+// タイムライン
+// ================================================================
+function renderTimeline(){
   const body=document.getElementById('timeline-body'); body.innerHTML='';
-  const dt=S.dayType||'出勤';
-  const {s:sh,e:eh}=getTimeBounds(dt);
-  const totalPx=(eh-sh)*HOUR_PX;
-
+  const dt=S.dayType||'出勤'; const {s:sh,e:eh}=getTimeBounds(dt); const totalPx=(eh-sh)*HOUR_PX;
   const left=mkCol(totalPx,true), center=mkTimeCol(sh,eh,totalPx), right=mkCol(totalPx,false);
-
   for(let h=sh;h<=eh;h++){
     const top=(h-sh)*HOUR_PX;
     [left,right].forEach(col=>{ const l=document.createElement('div'); l.className='hour-line'; l.style.top=top+'px'; col.appendChild(l); });
-    if(h<eh){
-      const ht=top+HOUR_PX/2;
-      [left,right].forEach(col=>{ const l=document.createElement('div'); l.className='half-hour-line'; l.style.top=ht+'px'; col.appendChild(l); });
-    }
+    if(h<eh){ const ht=top+HOUR_PX/2; [left,right].forEach(col=>{ const l=document.createElement('div'); l.className='half-hour-line'; l.style.top=ht+'px'; col.appendChild(l); }); }
   }
-
   function addZone(col,isPlanned){
     col.addEventListener('click',e=>{
       if(e.target.closest('.event-block')) return;
       const rect=col.getBoundingClientRect();
-      const clickMin=sh*60+Math.round((e.clientY-rect.top)*60/HOUR_PX);
-      const snap=Math.round(clickMin/15)*15;
-      const clamped=Math.max(sh*60,Math.min(eh*60-15,snap));
-      openAddModal(isPlanned?'planned':'actual',strFromMin(clamped));
+      const snap=Math.round((sh*60+Math.round((e.clientY-rect.top)*60/HOUR_PX))/15)*15;
+      openAddModal(isPlanned?'planned':'actual',strFromMin(Math.max(sh*60,Math.min(eh*60-15,snap))));
     });
   }
   addZone(left,true); addZone(right,false);
-
   S.planned.forEach(ev=>{ const b=mkEventBlock(ev,'planned',sh,eh); if(b) left.appendChild(b); });
-  S.actual.forEach(ev=>{ const b=mkEventBlock(ev,'actual',sh,eh); if(b) right.appendChild(b); });
-
-  const now=new Date(), nowMin=now.getHours()*60+now.getMinutes();
-  const nowTop=(nowMin-sh*60)*HOUR_PX/60;
+  S.actual.forEach(ev=>{  const b=mkEventBlock(ev,'actual', sh,eh); if(b) right.appendChild(b); });
+  const now=new Date(), nowMin=now.getHours()*60+now.getMinutes(), nowTop=(nowMin-sh*60)*HOUR_PX/60;
   if(nowTop>=0&&nowTop<=totalPx){
-    [left,right].forEach(col=>{
-      const ln=document.createElement('div'); ln.className='now-line'; ln.style.top=nowTop+'px';
-      const dot=document.createElement('div'); dot.className='now-dot'; ln.appendChild(dot); col.appendChild(ln);
-    });
+    [left,right].forEach(col=>{ const ln=document.createElement('div'); ln.className='now-line'; ln.style.top=nowTop+'px'; const dot=document.createElement('div'); dot.className='now-dot'; ln.appendChild(dot); col.appendChild(ln); });
   }
   body.appendChild(left); body.appendChild(center); body.appendChild(right);
   setTimeout(()=>{ document.getElementById('timeline-wrapper').scrollTop=Math.max(0,nowTop-140); },80);
 }
-
-function mkCol(h,isLeft){
-  const d=document.createElement('div');
-  d.className='event-col '+(isLeft?'event-col-left':'event-col-right');
-  d.style.cssText=`height:${h}px;position:relative;`; return d;
-}
-function mkTimeCol(sh,eh,totalPx){
-  const col=document.createElement('div'); col.className='time-label-col'; col.style.cssText=`height:${totalPx}px;position:relative;`;
-  for(let h=sh;h<=eh;h++){ const top=(h-sh)*HOUR_PX; const m=document.createElement('div'); m.className='time-marker'; m.style.top=top+'px'; m.innerHTML=`<span>${String(h).padStart(2,'0')}</span>`; col.appendChild(m); }
-  return col;
-}
+function mkCol(h,isLeft){ const d=document.createElement('div'); d.className='event-col '+(isLeft?'event-col-left':'event-col-right'); d.style.cssText=`height:${h}px;position:relative;`; return d; }
+function mkTimeCol(sh,eh,totalPx){ const col=document.createElement('div'); col.className='time-label-col'; col.style.cssText=`height:${totalPx}px;position:relative;`; for(let h=sh;h<=eh;h++){ const top=(h-sh)*HOUR_PX; const m=document.createElement('div'); m.className='time-marker'; m.style.top=top+'px'; m.innerHTML=`<span>${String(h).padStart(2,'0')}</span>`; col.appendChild(m); } return col; }
 function mkEventBlock(ev,type,sh,eh){
   const sm=minFromStr(ev.startTime),em=minFromStr(ev.endTime); if(em<=sm) return null;
   const top=(sm-sh*60)*HOUR_PX/60, height=(em-sm)*HOUR_PX/60;
   if(top+height<=0||top>=(eh-sh)*HOUR_PX) return null;
-  const cat=ev.category||'その他';
-  const color=CAT_COLORS[type][cat]||(type==='planned'?'#5B8DB8':'#52B788');
-  const isLight=CAT_LIGHT.includes(cat);
-  const block=document.createElement('div'); block.className='event-block'+(isLight?' light-cat':'');
+  const cat=ev.category||'その他', color=CAT_COLORS[type][cat]||(type==='planned'?'#5B8DB8':'#52B788');
+  const block=document.createElement('div'); block.className='event-block'+(CAT_LIGHT.includes(cat)?' light-cat':'');
   block.style.cssText=`top:${Math.max(0,top)}px;height:${Math.max(18,height-2)}px;background:${color};`;
-  const titleEl=document.createElement('div'); titleEl.className='event-title'; titleEl.textContent=ev.title; block.appendChild(titleEl);
-  if(height>=28){ const tEl=document.createElement('div'); tEl.className='event-time-label'; tEl.textContent=`${ev.startTime}〜${ev.endTime}`; block.appendChild(tEl); }
+  const t=document.createElement('div'); t.className='event-title'; t.textContent=ev.title; block.appendChild(t);
+  if(height>=28){ const tl=document.createElement('div'); tl.className='event-time-label'; tl.textContent=`${ev.startTime}〜${ev.endTime}`; block.appendChild(tl); }
   block.addEventListener('click',e=>{ e.stopPropagation(); openEditModal(ev,type); });
   if(type==='planned'&&height>=38){
     const row=document.createElement('div'); row.className='timer-row';
     if(S.timers[ev.id]){
-      const lbl=document.createElement('div'); lbl.className='timer-running-label'; lbl.innerHTML=`<span class="timer-dot"></span>${S.timers[ev.id]}〜`; row.appendChild(lbl);
+      const lbl=document.createElement('div'); lbl.className='timer-running-label'; lbl.innerHTML=`<span class="blink-dot"></span>${S.timers[ev.id]}〜`; row.appendChild(lbl);
       const btn=document.createElement('button'); btn.className='timer-btn timer-end-btn'; btn.textContent='✓ 終了';
       btn.addEventListener('click',e=>{ e.stopPropagation(); handleTimerEnd(ev); }); row.appendChild(btn);
     } else {
@@ -613,77 +675,152 @@ function mkEventBlock(ev,type,sh,eh){
   return block;
 }
 
-// ============================================================
-// タイマー
-// ============================================================
-function handleTimerStart(ev){
-  const t=nowTimeStr(); S.timers[ev.id]=t; renderTimeline(); showToast(`▶ ${t} 開始しました`);
-}
+// ================================================================
+// タスクタイマー（予定に対する実績記録）
+// ================================================================
+function handleTimerStart(ev){ const t=nowTimeStr(); S.timers[ev.id]=t; renderTimeline(); showToast(`▶ ${t} 開始しました`); }
 function handleTimerEnd(ev){
   const startTime=S.timers[ev.id]; if(!startTime) return;
   const endTime=nowTimeStr();
   if(minFromStr(startTime)>=minFromStr(endTime)){ showToast('終了時刻が開始より前です'); return; }
-  S.actual.push({ id:genId(), title:ev.title, startTime, endTime, category:ev.category||'その他', fromPlannedId:ev.id });
+  S.actual.push({id:genId(),title:ev.title,startTime,endTime,category:ev.category||'その他',fromPlannedId:ev.id});
   delete S.timers[ev.id]; renderTimeline(); scheduleSave();
   showToast(`✅ ${startTime}〜${endTime} 実績を記録しました`);
 }
 function handleModalTimerAction(){
   const ev=S.planned.find(e=>e.id===S.mEditId); if(!ev) return;
-  if(S.timers[ev.id]){ handleTimerEnd(ev); } else { handleTimerStart(ev); }
+  if(S.timers[ev.id]) handleTimerEnd(ev); else handleTimerStart(ev);
   updateModalTimerSection(ev.id);
 }
 function updateModalTimerSection(evId){
-  const sec=document.getElementById('modal-timer-section');
-  const run=document.getElementById('modal-timer-running');
-  const lbl=document.getElementById('modal-timer-start-label');
-  const btn=document.getElementById('btn-timer-action');
+  const sec=document.getElementById('modal-timer-section'),run=document.getElementById('modal-timer-running'),lbl=document.getElementById('modal-timer-start-label'),btn=document.getElementById('btn-timer-action');
   if(!sec) return;
-  if(S.timers[evId]){
-    sec.className='modal-timer-section running'; run.style.display='flex'; lbl.textContent=S.timers[evId];
-    btn.className='btn-timer btn-timer-stop'; btn.textContent='✓ 今すぐ終了して実績に記録';
-  } else {
-    sec.className='modal-timer-section'; run.style.display='none';
-    btn.className='btn-timer btn-timer-start'; btn.textContent='▶ 今すぐ開始';
-  }
+  if(S.timers[evId]){ sec.className='modal-timer-section running'; run.style.display='flex'; lbl.textContent=S.timers[evId]; btn.className='btn-timer btn-timer-stop'; btn.textContent='✓ 今すぐ終了して実績に記録'; }
+  else { sec.className='modal-timer-section'; run.style.display='none'; btn.className='btn-timer btn-timer-start'; btn.textContent='▶ 今すぐ開始'; }
 }
 
-// ============================================================
+// ================================================================
+// 🏋️ プランクタイマー
+// ================================================================
+const MOTIVATE = [
+  { pct:1.0,  msg:'よし、行くぞ！🔥' },
+  { pct:0.75, msg:'いい感じ！💪' },
+  { pct:0.5,  msg:'半分きた！🙌' },
+  { pct:0.25, msg:'あと少し！！😤' },
+  { pct:0.1,  msg:'ラスト！死ぬな！🔥🔥' }
+];
+
+function getMotivate(remaining, target){
+  const pct = remaining / target;
+  for(const m of MOTIVATE){ if(pct <= m.pct) return m.msg; }
+  return MOTIVATE[0].msg;
+}
+
+function updatePlankRing(){
+  const prog = document.getElementById('plank-ring-prog');
+  const display = document.getElementById('plank-ring-seconds');
+  const motivate = document.getElementById('plank-motivate');
+  if(!prog) return;
+  const ratio = S.plankRemaining / S.plankTarget;
+  const offset = RING_C * (1 - ratio);
+  prog.style.strokeDashoffset = offset;
+  // Color: blue → orange → red
+  const color = ratio > 0.5 ? '#5B8DB8' : ratio > 0.25 ? '#F4A261' : '#E74C3C';
+  prog.setAttribute('stroke', color);
+  display.textContent = S.plankRemaining;
+  motivate.textContent = getMotivate(S.plankRemaining, S.plankTarget);
+}
+
+function startPlankTimer(){
+  const target = parseInt(document.getElementById('plank-secs-input').value) || 60;
+  S.plankTarget = target; S.plankRemaining = target; S.plankStartedAt = new Date();
+  document.getElementById('plank-overlay-status').textContent = 'PLANK';
+  document.getElementById('plank-overlay').classList.add('active');
+  vibrate(100);
+  updatePlankRing();
+  S.plankInterval = setInterval(()=>{
+    S.plankRemaining--;
+    updatePlankRing();
+    // Vibrate at 10s warning
+    if(S.plankRemaining === 10) vibrate([100,50,100]);
+    if(S.plankRemaining <= 0) completePlank();
+  }, 1000);
+}
+
+function stopPlankTimer(){
+  if(!S.plankInterval) return;
+  clearInterval(S.plankInterval); S.plankInterval = null;
+  const actual = S.plankTarget - S.plankRemaining;
+  if(actual >= 3){
+    savePlankRecord(actual, S.plankTarget, false);
+    showToast(`⏹ ${fmtSecs(actual)}で終了 — よく頑張りました！`);
+  }
+  hidePlankOverlay();
+}
+
+function completePlank(){
+  clearInterval(S.plankInterval); S.plankInterval = null;
+  vibrate([200,100,200,100,400]);
+  document.getElementById('plank-overlay').classList.remove('active');
+  document.getElementById('complete-secs').textContent = S.plankTarget;
+  document.getElementById('plank-complete').classList.add('active');
+  savePlankRecord(S.plankTarget, S.plankTarget, true);
+}
+
+function hidePlankOverlay(){
+  document.getElementById('plank-overlay').classList.remove('active');
+}
+
+function closePlankComplete(){
+  document.getElementById('plank-complete').classList.remove('active');
+  renderPlankToday();
+}
+
+function savePlankRecord(actual, target, completed){
+  const now = new Date();
+  const timeStr = strFromMin(now.getHours()*60+now.getMinutes());
+  S.plankRecords.push({ actual, target, completed, time: timeStr });
+  scheduleSave();
+  renderPlankToday();
+}
+
+function renderPlankToday(){
+  const el = document.getElementById('plank-today-records');
+  if(!S.plankRecords.length){ el.innerHTML='<div class="plank-no-record">まだ記録がありません</div>'; return; }
+  el.innerHTML = [...S.plankRecords].reverse().map(r=>
+    `<div class="plank-record-row">
+      <span class="plank-record-time">${r.time||''}</span>
+      <span class="plank-record-secs">${r.actual}秒</span>
+      <span class="plank-record-badge ${r.completed?'badge-done':'badge-stop'}">${r.completed?'🎉 完了':'中断'}</span>
+    </div>`
+  ).join('');
+}
+
+// ================================================================
 // 日タイプ UI
-// ============================================================
+// ================================================================
 function refreshDayType(){
   document.querySelectorAll('.day-type-btn').forEach(b=>b.classList.toggle('selected',b.dataset.type===S.dayType));
   const hint=document.getElementById('template-hint');
-  if(S.dayType && TEMPLATES[S.dayType]){
-    hint.textContent=`${DT_EMOJI[S.dayType]} ${S.dayType}のルーティンを配置`;
-  } else {
-    hint.textContent='日タイプを選んでからタップ';
-  }
+  hint.textContent=(S.dayType&&TEMPLATES[S.dayType])?`${DT_EMOJI[S.dayType]} ${S.dayType}のルーティンを配置`:'日タイプを選んでからタップ';
 }
 
-// ============================================================
+// ================================================================
 // Event Modal
-// ============================================================
+// ================================================================
 function openAddModal(mode,defStart){
   S.mMode=mode||'planned'; S.mCat='その他'; S.mEditId=null; S.mEditType=null;
   document.getElementById('modal-title').textContent='イベントを追加';
-  document.getElementById('event-title').value='';
-  document.getElementById('event-start').value=defStart||'';
-  document.getElementById('event-end').value='';
-  document.getElementById('modal-delete').style.display='none';
-  document.getElementById('type-toggle-row').style.display='';
-  document.getElementById('modal-timer-section').style.display='none';
+  document.getElementById('event-title').value=''; document.getElementById('event-start').value=defStart||''; document.getElementById('event-end').value='';
+  document.getElementById('modal-delete').style.display='none'; document.getElementById('type-toggle-row').style.display=''; document.getElementById('modal-timer-section').style.display='none';
   syncModalUI(); document.getElementById('event-modal').classList.add('open');
 }
 function openEditModal(ev,type){
   S.mEditId=ev.id; S.mEditType=type; S.mMode=type; S.mCat=ev.category||'その他';
-  document.getElementById('modal-title').textContent='イベントを編集';
-  document.getElementById('event-title').value=ev.title;
-  document.getElementById('event-start').value=ev.startTime;
-  document.getElementById('event-end').value=ev.endTime;
-  document.getElementById('modal-delete').style.display='';
-  document.getElementById('type-toggle-row').style.display='none';
-  const timerSec=document.getElementById('modal-timer-section');
-  if(type==='planned'){ timerSec.style.display=''; updateModalTimerSection(ev.id); } else { timerSec.style.display='none'; }
+  document.getElementById('modal-title').textContent='イベントを編集'; document.getElementById('event-title').value=ev.title; document.getElementById('event-start').value=ev.startTime; document.getElementById('event-end').value=ev.endTime;
+  document.getElementById('modal-delete').style.display=''; document.getElementById('type-toggle-row').style.display='none';
+  const ts=document.getElementById('modal-timer-section');
+  if(type==='planned'){ ts.style.display=''; updateModalTimerSection(ev.id); } else ts.style.display='none';
   syncModalUI(); document.getElementById('event-modal').classList.add('open');
 }
 function closeModal(){ document.getElementById('event-modal').classList.remove('open'); }
@@ -693,77 +830,54 @@ function syncModalUI(){
   document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('selected',b.dataset.cat===S.mCat));
 }
 function handleSaveModal(){
-  const title=document.getElementById('event-title').value.trim();
-  const start=document.getElementById('event-start').value;
-  const end=document.getElementById('event-end').value;
-  if(!title){ showToast('タイトルを入力してください'); return; }
-  if(!start||!end){ showToast('時刻を入力してください'); return; }
-  if(minFromStr(start)>=minFromStr(end)){ showToast('終了は開始より後にしてください'); return; }
+  const title=document.getElementById('event-title').value.trim(), start=document.getElementById('event-start').value, end=document.getElementById('event-end').value;
+  if(!title){ showToast('タイトルを入力してください'); return; } if(!start||!end){ showToast('時刻を入力してください'); return; } if(minFromStr(start)>=minFromStr(end)){ showToast('終了は開始より後にしてください'); return; }
   const ev={id:S.mEditId||genId(),title,startTime:start,endTime:end,category:S.mCat};
-  if(S.mEditId){
-    if(S.mEditType==='planned') S.planned=S.planned.map(e=>e.id===S.mEditId?ev:e);
-    else S.actual=S.actual.map(e=>e.id===S.mEditId?ev:e);
-  } else {
-    if(S.mMode==='planned') S.planned.push(ev); else S.actual.push(ev);
-  }
-  closeModal(); renderTimeline(); scheduleSave();
-  showToast(S.mEditId?'✏️ 更新しました':'✅ 追加しました');
+  if(S.mEditId){ if(S.mEditType==='planned') S.planned=S.planned.map(e=>e.id===S.mEditId?ev:e); else S.actual=S.actual.map(e=>e.id===S.mEditId?ev:e); }
+  else { if(S.mMode==='planned') S.planned.push(ev); else S.actual.push(ev); }
+  closeModal(); renderTimeline(); scheduleSave(); showToast(S.mEditId?'✏️ 更新しました':'✅ 追加しました');
 }
 function handleDeleteModal(){
   if(!S.mEditId||!confirm('このイベントを削除しますか？')) return;
-  S.planned=S.planned.filter(e=>e.id!==S.mEditId);
-  S.actual=S.actual.filter(e=>e.id!==S.mEditId);
+  S.planned=S.planned.filter(e=>e.id!==S.mEditId); S.actual=S.actual.filter(e=>e.id!==S.mEditId);
   closeModal(); renderTimeline(); scheduleSave(); showToast('🗑 削除しました');
 }
 
-// ============================================================
+// ================================================================
 // Template Modal
-// ============================================================
+// ================================================================
 function openTemplateModal(){
-  if(!S.dayType || !TEMPLATES[S.dayType]){ showToast('先に日タイプを選んでください'); return; }
-  const tmpl=TEMPLATES[S.dayType];
+  if(!S.dayType||!TEMPLATES[S.dayType]){ showToast('先に日タイプを選んでください'); return; }
   document.getElementById('tmpl-title').textContent=`${DT_EMOJI[S.dayType]} ${S.dayType}のルーティンを配置`;
-  document.getElementById('tmpl-wake-label').textContent=tmpl.wakeLabel||'起床時間';
-  updateTemplatePreview();
-  document.getElementById('template-modal').classList.add('open');
+  document.getElementById('tmpl-wake-label').textContent=TEMPLATES[S.dayType].wakeLabel||'起床時間';
+  updateTemplatePreview(); document.getElementById('template-modal').classList.add('open');
 }
 function closeTemplateModal(){ document.getElementById('template-modal').classList.remove('open'); }
-
 function updateTemplatePreview(){
-  const wakeTime=document.getElementById('tmpl-wake-time').value||'06:30';
-  const events=buildTemplateEvents(S.dayType,wakeTime);
-  const preview=document.getElementById('tmpl-preview');
-  if(!events.length){ preview.innerHTML='<div style="color:#AAA;font-size:13px;">このテンプレートにはイベントがありません</div>'; return; }
-  preview.innerHTML=events.map(ev=>
-    `<div class="tmpl-preview-row">
-      <span class="tmpl-time">${ev.startTime} 〜 ${ev.endTime}</span>
-      <span class="tmpl-title">${ev.title}</span>
-    </div>`
-  ).join('');
+  const wt=document.getElementById('tmpl-wake-time').value||'06:30';
+  const evs=buildTemplateEvents(S.dayType,wt);
+  document.getElementById('tmpl-preview').innerHTML=evs.length
+    ? evs.map(e=>`<div class="tmpl-preview-row"><span class="tmpl-time">${e.startTime}〜${e.endTime}</span><span class="tmpl-title">${e.title}</span></div>`).join('')
+    : '<div style="color:#AAA;font-size:13px;">イベントがありません</div>';
 }
-
 function applyTemplateModal(){
-  const wakeTime=document.getElementById('tmpl-wake-time').value||'06:30';
-  const replace=document.getElementById('tmpl-replace-check').checked;
-  const events=buildTemplateEvents(S.dayType,wakeTime);
-  if(!events.length){ showToast('配置できるイベントがありませんでした'); return; }
-  if(replace) S.planned=events;
-  else S.planned=[...S.planned,...events];
+  const wt=document.getElementById('tmpl-wake-time').value||'06:30', replace=document.getElementById('tmpl-replace-check').checked;
+  const evs=buildTemplateEvents(S.dayType,wt);
+  if(!evs.length){ showToast('配置できるイベントがありませんでした'); return; }
+  if(replace) S.planned=evs; else S.planned=[...S.planned,...evs];
   closeTemplateModal(); renderTimeline(); scheduleSave();
-  showToast(`📋 ${events.length}件のルーティンを配置しました`);
+  showToast(`📋 ${evs.length}件のルーティンを配置しました`);
 }
 
-// ============================================================
+// ================================================================
 // Calendar
-// ============================================================
+// ================================================================
 function renderCalendar(){
-  const {calYear:y,calMonth:m}=S;
-  document.getElementById('cal-month-label').textContent=`${y}年${m}月`;
+  const {calYear:y,calMonth:m}=S; document.getElementById('cal-month-label').textContent=`${y}年${m}月`;
   const days=new Date(y,m,0).getDate(), WDAYS=['日','月','火','水','木','金','土'];
   const list=document.getElementById('calendar-list'); list.innerHTML='';
   for(let d=1;d<=days;d++){
-    const ds=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const dow=new Date(ds+'T12:00:00').getDay(), isToday=ds===S.today;
+    const ds=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`, dow=new Date(ds+'T12:00:00').getDay(), isToday=ds===S.today;
     const ncls=dow===0?'sun':dow===6?'sat':'';
     const row=document.createElement('div'); row.className='calendar-day-row'+(isToday?' today-row':'');
     row.innerHTML=`<div class="calendar-day-label"><div class="calendar-day-num ${ncls}">${d}</div><div class="calendar-day-wday ${ncls}">${WDAYS[dow]}</div></div>
@@ -772,51 +886,65 @@ function renderCalendar(){
   }
   list.querySelectorAll('.day-type-chip').forEach(chip=>{
     chip.addEventListener('click',()=>{
-      const ds=chip.dataset.date,dt=chip.dataset.type;
-      S.calDayTypes[ds]=(S.calDayTypes[ds]===dt)?undefined:dt;
-      if(!S.calDayTypes[ds]) delete S.calDayTypes[ds];
+      const ds=chip.dataset.date,dt=chip.dataset.type; S.calDayTypes[ds]=(S.calDayTypes[ds]===dt)?undefined:dt; if(!S.calDayTypes[ds]) delete S.calDayTypes[ds];
       list.querySelectorAll(`.day-type-chip[data-date="${ds}"]`).forEach(c=>c.classList.toggle('active',c.dataset.type===S.calDayTypes[ds]));
     });
   });
 }
 
-// ============================================================
+// ================================================================
 // Stats
-// ============================================================
-function renderStats({dtc,rec,total}){
+// ================================================================
+function renderStats({dtc,rec,total,plankTotal,plankBest,plankSessions,plankByDay}){
   const el=document.getElementById('stats-content'); el.innerHTML='';
+  // Day type
   const dCard=document.createElement('div'); dCard.className='stats-card';
   dCard.innerHTML=`<h3>日タイプ別日数（${rec}日記録 / ${total}日）</h3><div class="day-type-stats">${DAY_TYPES.map(dt=>`<div class="dt-stat-item"><div class="dt-stat-emoji">${DT_EMOJI[dt]}</div><div class="dt-stat-count">${dtc[dt]||0}</div><div class="dt-stat-label">${dt}</div></div>`).join('')}</div>`;
   el.appendChild(dCard);
-  const sCard=document.createElement('div'); sCard.className='stats-card';
-  const total_work=(dtc['出勤']||0)+(dtc['在宅']||0)+(dtc['出張']||0);
-  const total_off=(dtc['休日']||0)+(dtc['旅行']||0);
-  sCard.innerHTML=`<h3>今月のまとめ</h3><p class="summary-text">勤務日：${total_work}日　休日：${total_off}日<br>記録のある日：${rec}日 / ${total}日</p>`;
-  el.appendChild(sCard);
+  // Plank stats
+  const pCard=document.createElement('div'); pCard.className='stats-card';
+  pCard.innerHTML=`<h3>🏋️ プランク記録</h3>`;
+  if(plankSessions===0){
+    pCard.innerHTML+=`<p style="font-size:13px;color:#CCC;text-align:center;padding:12px 0">まだ記録がありません</p>`;
+  } else {
+    pCard.innerHTML+=`
+      <div class="plank-stat-row"><span class="plank-stat-label">今月の合計時間</span><span class="plank-stat-value">${fmtSecs(plankTotal)}</span></div>
+      <div class="plank-stat-row"><span class="plank-stat-label">セッション数</span><span class="plank-stat-value">${plankSessions}回</span></div>
+      <div class="plank-stat-row"><span class="plank-stat-label">最長記録</span><span class="plank-stat-value best">${plankBest}秒 🏆</span></div>`;
+    // Simple bar chart
+    const entries=Object.entries(plankByDay).sort(([a],[b])=>a.localeCompare(b));
+    if(entries.length){
+      const maxSec=Math.max(...entries.map(([,v])=>v),1);
+      const barHTML=entries.map(([ds,sec])=>{
+        const d=parseInt(ds.split('-')[2]);
+        const pct=Math.round(sec/maxSec*100);
+        return `<div class="plank-bar-row"><span class="plank-bar-date">${d}日</span><div class="plank-bar-bg"><div class="plank-bar-fill" style="width:${pct}%"></div></div><span class="plank-bar-sec">${sec}秒</span></div>`;
+      }).join('');
+      pCard.innerHTML+=`<div class="plank-daily-bar-wrap" style="margin-top:12px">${barHTML}</div>`;
+    }
+  }
+  el.appendChild(pCard);
 }
 
-// ============================================================
+// ================================================================
 // Tab switching
-// ============================================================
+// ================================================================
 async function switchTab(tab){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
   document.querySelectorAll('.tab-content').forEach(s=>s.classList.toggle('active',s.id===`tab-${tab}`));
   document.getElementById('fab-btn').style.display=tab==='timeline'?'':'none';
   if(tab==='calendar'){ await loadCalMonth(S.calYear,S.calMonth); renderCalendar(); }
-  else if(tab==='stats'){
-    document.getElementById('stats-month-label').textContent=`${S.statsYear}年${S.statsMonth}月`;
-    renderStats(await loadStats(S.statsYear,S.statsMonth));
-  }
+  else if(tab==='stats'){ document.getElementById('stats-month-label').textContent=`${S.statsYear}年${S.statsMonth}月`; renderStats(await loadStats(S.statsYear,S.statsMonth)); }
+  else if(tab==='plank'){ renderPlankToday(); }
 }
 
-// ============================================================
+// ================================================================
 // Event Listeners
-// ============================================================
+// ================================================================
 function setupListeners(){
   document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
   document.querySelectorAll('.day-type-btn').forEach(b=>b.addEventListener('click',()=>{ S.dayType=b.dataset.type; refreshDayType(); renderTimeline(); scheduleSave(); }));
   document.getElementById('fab-btn').addEventListener('click',()=>openAddModal('planned'));
-
   // Event modal
   document.getElementById('modal-close').addEventListener('click',closeModal);
   document.getElementById('modal-cancel').addEventListener('click',closeModal);
@@ -827,7 +955,6 @@ function setupListeners(){
   document.querySelectorAll('.cat-btn').forEach(b=>b.addEventListener('click',()=>{ S.mCat=b.dataset.cat; syncModalUI(); }));
   document.getElementById('event-modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
   document.getElementById('btn-timer-action').addEventListener('click',handleModalTimerAction);
-
   // Template modal
   document.getElementById('template-apply-btn').addEventListener('click',openTemplateModal);
   document.getElementById('tmpl-close').addEventListener('click',closeTemplateModal);
@@ -835,7 +962,6 @@ function setupListeners(){
   document.getElementById('tmpl-apply').addEventListener('click',applyTemplateModal);
   document.getElementById('tmpl-wake-time').addEventListener('input',updateTemplatePreview);
   document.getElementById('template-modal').addEventListener('click',function(e){ if(e.target===this) closeTemplateModal(); });
-
   // Calendar
   document.getElementById('cal-prev').addEventListener('click',async()=>{ S.calMonth--; if(S.calMonth<1){S.calMonth=12;S.calYear--;} await loadCalMonth(S.calYear,S.calMonth); renderCalendar(); });
   document.getElementById('cal-next').addEventListener('click',async()=>{ S.calMonth++; if(S.calMonth>12){S.calMonth=1;S.calYear++;} await loadCalMonth(S.calYear,S.calMonth); renderCalendar(); });
@@ -845,19 +971,33 @@ function setupListeners(){
     catch(e){ showToast('⚠️ 保存に失敗しました'); }
     btn.disabled=false; btn.textContent='💾 保存する';
   });
-
   // Stats
   document.getElementById('stats-prev').addEventListener('click',async()=>{ S.statsMonth--; if(S.statsMonth<1){S.statsMonth=12;S.statsYear--;} document.getElementById('stats-month-label').textContent=`${S.statsYear}年${S.statsMonth}月`; renderStats(await loadStats(S.statsYear,S.statsMonth)); });
   document.getElementById('stats-next').addEventListener('click',async()=>{ S.statsMonth++; if(S.statsMonth>12){S.statsMonth=1;S.statsYear++;} document.getElementById('stats-month-label').textContent=`${S.statsYear}年${S.statsMonth}月`; renderStats(await loadStats(S.statsYear,S.statsMonth)); });
-
   // Journal
   document.getElementById('journal-toggle').addEventListener('click',()=>document.getElementById('journal-text').classList.toggle('open'));
   document.getElementById('journal-text').addEventListener('input',function(){ S.journal=this.value; scheduleSave(); });
+  // Plank presets
+  document.querySelectorAll('.plank-preset-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.plank-preset-btn').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      document.getElementById('plank-secs-input').value=btn.dataset.secs;
+    });
+  });
+  document.getElementById('plank-secs-input').addEventListener('input',function(){
+    document.querySelectorAll('.plank-preset-btn').forEach(b=>{
+      b.classList.toggle('selected',b.dataset.secs===this.value);
+    });
+  });
+  document.getElementById('plank-start-btn').addEventListener('click',startPlankTimer);
+  document.getElementById('plank-stop-btn').addEventListener('click',stopPlankTimer);
+  document.getElementById('plank-complete-close').addEventListener('click',closePlankComplete);
 }
 
-// ============================================================
+// ================================================================
 // 初期化
-// ============================================================
+// ================================================================
 async function init(){
   const now=new Date();
   S.today=toDateStr(now); S.calYear=now.getFullYear(); S.calMonth=now.getMonth()+1; S.statsYear=now.getFullYear(); S.statsMonth=now.getMonth()+1;
