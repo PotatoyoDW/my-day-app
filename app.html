@@ -257,7 +257,10 @@
     .settings-dt-tab[data-dt="出張"].active { background: #E76F51; }
     .tmpl-item-row { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid #F5F5F5; background: white; }
     .tmpl-item-row:last-child { border-bottom: none; }
-    .tmpl-drag-handle { font-size: 20px; color: #CCC; cursor: grab; touch-action: none; padding: 0 2px; flex-shrink: 0; line-height: 1; }
+    .tmpl-move-btns { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+    .tmpl-move-btn { width: 26px; height: 22px; border-radius: 6px; border: 1px solid #E0E0E0; background: white; font-size: 12px; cursor: pointer; color: #888; display: flex; align-items: center; justify-content: center; line-height: 1; }
+    .tmpl-move-btn:disabled { opacity: 0.25; cursor: default; }
+    .tmpl-move-btn:not(:disabled):active { background: #EEF4FB; color: #5B8DB8; }
     .tmpl-item-info { flex: 1; min-width: 0; }
     .tmpl-item-title { font-size: 14px; font-weight: 600; color: #2D3436; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .tmpl-item-meta { font-size: 11px; color: #AAA; margin-top: 2px; }
@@ -266,9 +269,6 @@
     .tmpl-item-edit-btn { width: 30px; height: 30px; border-radius: 50%; border: none; background: #F5F5F5; color: #666; font-size: 14px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
     .tmpl-add-row { padding: 12px 16px; }
     .tmpl-add-btn { width: 100%; padding: 11px; border-radius: 10px; border: 1.5px dashed #5B8DB8; background: transparent; color: #5B8DB8; font-size: 14px; font-weight: 600; cursor: pointer; }
-    .dnd-above { border-top: 3px solid #5B8DB8 !important; }
-    .dnd-below { border-bottom: 3px solid #5B8DB8 !important; }
-    .dnd-dragging { opacity: 0.3 !important; }
 
     /* Template Item Edit Modal */
     .timing-type-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
@@ -883,8 +883,12 @@ function renderTemplateList(){
   const evs=(TEMPLATES[TI.dayType]?.events)||[];
   evs.forEach((ev,i)=>{
     const row=document.createElement('div'); row.className='tmpl-item-row'; row.dataset.idx=i;
+    const total=evs.length;
     row.innerHTML=`
-      <span class="tmpl-drag-handle" data-idx="${i}">⠿</span>
+      <div class="tmpl-move-btns">
+        <button class="tmpl-move-btn" data-idx="${i}" data-dir="-1" ${i===0?'disabled':''}>↑</button>
+        <button class="tmpl-move-btn" data-idx="${i}" data-dir="1"  ${i===total-1?'disabled':''}>↓</button>
+      </div>
       <div class="tmpl-item-info">
         <div class="tmpl-item-title">${ev.title}${ev.defaultOff?' <span style="font-size:10px;color:#E76F51">たまに</span>':''}</div>
         <div class="tmpl-item-meta">${timingDesc(ev)}${ev.memo?' 📝':''}</div>
@@ -892,10 +896,19 @@ function renderTemplateList(){
       ${ev.autoActual?'<span class="tmpl-item-auto-badge">予定+実績</span>':''}
       <span class="tmpl-item-cat">${ev.category||'その他'}</span>
       <button class="tmpl-item-edit-btn" data-idx="${i}">✏️</button>`;
+    row.querySelectorAll('.tmpl-move-btn').forEach(btn=>btn.addEventListener('click',()=>moveTemplateItem(parseInt(btn.dataset.idx),parseInt(btn.dataset.dir))));
     row.querySelector('.tmpl-item-edit-btn').addEventListener('click',()=>openTemplateItemModal(i));
     list.appendChild(row);
   });
-  setupTemplateListDnD(list);
+}
+
+function moveTemplateItem(idx, dir){
+  const evs=TEMPLATES[TI.dayType].events;
+  const newIdx=idx+dir;
+  if(newIdx<0||newIdx>=evs.length) return;
+  [evs[idx],evs[newIdx]]=[evs[newIdx],evs[idx]];
+  renderTemplateList();
+  saveTemplateToFirestore(TI.dayType).catch(console.error);
 }
 
 // ── テンプレートアイテム編集モーダル ──────────────────
@@ -975,62 +988,6 @@ function handleDeleteTemplateItemModal(){
   showToast('🗑 削除しました');
 }
 
-// ── ドラッグ＆ドロップ（タッチ対応） ─────────────────
-const DND={ active:false, srcIdx:-1, curIdx:-1, ghost:null, srcEl:null, list:null, startY:0, startTop:0 };
-
-function setupTemplateListDnD(list){
-  DND.list=list;
-  list.querySelectorAll('.tmpl-drag-handle').forEach(handle=>{
-    handle.addEventListener('touchstart', onDndStart, { passive:false });
-  });
-}
-
-function onDndStart(e){
-  e.preventDefault();
-  const row=e.currentTarget.closest('.tmpl-item-row');
-  const items=[...DND.list.querySelectorAll('.tmpl-item-row')];
-  DND.srcIdx=items.indexOf(row); DND.curIdx=DND.srcIdx; DND.active=true; DND.srcEl=row;
-  const rect=row.getBoundingClientRect();
-  const ghost=row.cloneNode(true);
-  ghost.style.cssText=`position:fixed;top:${rect.top}px;left:${rect.left}px;width:${rect.width}px;z-index:2000;background:white;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,0.2);pointer-events:none;opacity:0.92;`;
-  document.body.appendChild(ghost); DND.ghost=ghost;
-  row.classList.add('dnd-dragging');
-  DND.startY=e.touches[0].clientY; DND.startTop=rect.top;
-}
-
-function onDndMove(e){
-  if(!DND.active) return; e.preventDefault();
-  const touch=e.touches[0];
-  DND.ghost.style.top=(DND.startTop+(touch.clientY-DND.startY))+'px';
-  const items=[...DND.list.querySelectorAll('.tmpl-item-row')];
-  let newIdx=DND.srcIdx;
-  items.forEach((item,i)=>{
-    if(i===DND.srcIdx) return;
-    const rect=item.getBoundingClientRect();
-    if(touch.clientY>rect.top+rect.height/2) newIdx=i;
-  });
-  if(newIdx!==DND.curIdx){
-    DND.curIdx=newIdx;
-    items.forEach(r=>r.classList.remove('dnd-above','dnd-below'));
-    if(newIdx!==DND.srcIdx) items[newIdx].classList.add(newIdx>DND.srcIdx?'dnd-below':'dnd-above');
-  }
-}
-
-function onDndEnd(){
-  if(!DND.active) return; DND.active=false;
-  if(DND.ghost){ DND.ghost.remove(); DND.ghost=null; }
-  if(DND.srcEl) DND.srcEl.classList.remove('dnd-dragging');
-  if(DND.list) DND.list.querySelectorAll('.tmpl-item-row').forEach(r=>r.classList.remove('dnd-above','dnd-below'));
-  if(DND.curIdx>=0&&DND.curIdx!==DND.srcIdx){
-    const evs=TEMPLATES[TI.dayType].events;
-    const [moved]=evs.splice(DND.srcIdx,1);
-    evs.splice(DND.curIdx,0,moved);
-    renderTemplateList();
-    saveTemplateToFirestore(TI.dayType).catch(console.error);
-    showToast('↕ 並び順を変更しました');
-  }
-  DND.srcIdx=-1; DND.curIdx=-1; DND.srcEl=null;
-}
 
 // ================================================================
 // タイムライン
@@ -1471,9 +1428,6 @@ function setupListeners(){
   document.getElementById('tmpl-item-modal').addEventListener('click',function(e){ if(e.target===this) closeTemplateItemModal(); });
   document.querySelectorAll('.timing-type-btn').forEach(b=>b.addEventListener('click',()=>{ TI.timingType=b.dataset.timing; syncTimingUI(); }));
   document.querySelectorAll('#ti-cat-picker .cat-btn').forEach(b=>b.addEventListener('click',()=>{ TI.cat=b.dataset.cat; document.querySelectorAll('#ti-cat-picker .cat-btn').forEach(c=>c.classList.toggle('selected',c.dataset.cat===TI.cat)); }));
-  // DnD - document level listeners (attached once)
-  document.addEventListener('touchmove', onDndMove, { passive:false });
-  document.addEventListener('touchend', onDndEnd);
 }
 
 // ================================================================
