@@ -76,6 +76,24 @@
     .now-line { position: absolute; left: -2px; right: -2px; height: 2px; background: #E74C3C; z-index: 8; pointer-events: none; }
     .now-dot { position: absolute; left: -3px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: #E74C3C; }
 
+    /* Timer buttons on planned events */
+    .timer-row { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+    .timer-btn { padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; line-height: 1.6; }
+    .timer-start-btn { background: rgba(255,255,255,0.28); color: white; }
+    .timer-end-btn { background: rgba(255,255,255,0.92); color: #16A661; }
+    .timer-running-label { font-size: 9px; color: rgba(255,255,255,0.88); display: flex; align-items: center; gap: 3px; }
+    .timer-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #FF6B6B; animation: blink 1s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    /* Modal timer section */
+    .modal-timer-section { background: #F4F8FF; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .modal-timer-section.running { background: #EFF9F4; }
+    .modal-timer-label { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px; }
+    .modal-timer-running { font-size: 13px; color: #16A661; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .btn-timer { width: 100%; padding: 10px; border-radius: 8px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-timer-start { background: #5B8DB8; color: white; }
+    .btn-timer-stop  { background: #16A661; color: white; }
+
     /* FAB */
     .fab { position: fixed; bottom: 24px; right: 20px; width: 52px; height: 52px; border-radius: 50%; background: #5B8DB8; color: white; font-size: 28px; border: none; box-shadow: 0 4px 14px rgba(91,141,184,0.45); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 100; -webkit-tap-highlight-color: transparent; }
     .fab:active { transform: scale(0.93); }
@@ -257,6 +275,15 @@
       <button class="type-toggle-btn planned active" id="toggle-planned">📋 予定</button>
       <button class="type-toggle-btn actual" id="toggle-actual">✅ 実績</button>
     </div>
+    <!-- タイマーセクション（予定イベント編集時のみ表示） -->
+    <div id="modal-timer-section" class="modal-timer-section" style="display:none">
+      <div class="modal-timer-label">⏱ タイマー</div>
+      <div id="modal-timer-running" class="modal-timer-running" style="display:none">
+        <span class="timer-dot"></span><span id="modal-timer-start-label"></span> 〜 進行中
+      </div>
+      <button class="btn-timer btn-timer-start" id="btn-timer-action">▶ 今すぐ開始</button>
+    </div>
+
     <div class="form-group">
       <label class="form-label">タイトル</label>
       <input type="text" class="form-input" id="event-title" placeholder="例：仕事、昼ごはん、休憩...">
@@ -334,6 +361,7 @@ const S = {
   calYear: 0, calMonth: 0, calDayTypes: {},
   statsYear: 0, statsMonth: 0,
   saveTimer: null,
+  timers: {},   // { [plannedEventId]: 'HH:MM' } 開始済みタイマー
   // Modal state
   mMode: 'planned',
   mCat: 'その他',
@@ -561,7 +589,112 @@ function mkEventBlock(ev, type, sh, eh) {
   }
 
   block.addEventListener('click', e => { e.stopPropagation(); openEditModal(ev, type); });
+
+  // 予定イベントにタイマーボタンを追加
+  if (type === 'planned' && height >= 38) {
+    const timerRow = document.createElement('div');
+    timerRow.className = 'timer-row';
+
+    if (S.timers[ev.id]) {
+      // タイマー進行中 → 終了ボタン表示
+      const runLabel = document.createElement('div');
+      runLabel.className = 'timer-running-label';
+      runLabel.innerHTML = `<span class="timer-dot"></span>${S.timers[ev.id]}〜`;
+      timerRow.appendChild(runLabel);
+
+      const endBtn = document.createElement('button');
+      endBtn.className = 'timer-btn timer-end-btn';
+      endBtn.textContent = '✓ 終了';
+      endBtn.addEventListener('click', e => { e.stopPropagation(); handleTimerEnd(ev); });
+      timerRow.appendChild(endBtn);
+    } else {
+      // タイマー未開始 → 開始ボタン表示
+      const startBtn = document.createElement('button');
+      startBtn.className = 'timer-btn timer-start-btn';
+      startBtn.textContent = '▶ 開始';
+      startBtn.addEventListener('click', e => { e.stopPropagation(); handleTimerStart(ev); });
+      timerRow.appendChild(startBtn);
+    }
+    block.appendChild(timerRow);
+  }
+
   return block;
+}
+
+// ============================================================
+// タイマー処理
+// ============================================================
+function nowTimeStr() {
+  const now = new Date();
+  return strFromMin(now.getHours() * 60 + now.getMinutes());
+}
+
+function handleTimerStart(ev) {
+  const t = nowTimeStr();
+  S.timers[ev.id] = t;
+  renderTimeline();
+  showToast(`▶ ${t} 開始しました`);
+}
+
+function handleTimerEnd(ev) {
+  const startTime = S.timers[ev.id];
+  if (!startTime) return;
+  const endTime = nowTimeStr();
+
+  if (minFromStr(startTime) >= minFromStr(endTime)) {
+    showToast('終了時刻が開始より前です。少し経ってからもう一度どうぞ');
+    return;
+  }
+
+  // 実績イベントを自動作成
+  const actual = {
+    id: genId(),
+    title: ev.title,
+    startTime,
+    endTime,
+    category: ev.category || 'その他',
+    fromPlannedId: ev.id
+  };
+  S.actual.push(actual);
+  delete S.timers[ev.id];
+
+  renderTimeline();
+  scheduleSave();
+  showToast(`✅ ${startTime}〜${endTime} 実績を記録しました`);
+}
+
+// モーダルからのタイマー操作
+function handleModalTimerAction() {
+  const ev = S.planned.find(e => e.id === S.mEditId);
+  if (!ev) return;
+  if (S.timers[ev.id]) {
+    handleTimerEnd(ev);
+    updateModalTimerSection(ev.id);
+  } else {
+    handleTimerStart(ev);
+    updateModalTimerSection(ev.id);
+  }
+}
+
+function updateModalTimerSection(evId) {
+  const timerSec  = document.getElementById('modal-timer-section');
+  const runDiv    = document.getElementById('modal-timer-running');
+  const startLabel= document.getElementById('modal-timer-start-label');
+  const actionBtn = document.getElementById('btn-timer-action');
+  if (!timerSec) return;
+
+  if (S.timers[evId]) {
+    timerSec.className = 'modal-timer-section running';
+    runDiv.style.display = 'flex';
+    startLabel.textContent = S.timers[evId];
+    actionBtn.className = 'btn-timer btn-timer-stop';
+    actionBtn.textContent = '✓ 今すぐ終了して実績に記録';
+  } else {
+    timerSec.className = 'modal-timer-section';
+    runDiv.style.display = 'none';
+    actionBtn.className = 'btn-timer btn-timer-start';
+    actionBtn.textContent = '▶ 今すぐ開始';
+  }
 }
 
 // ============================================================
@@ -587,6 +720,11 @@ function openAddModal(mode, defStart) {
   document.getElementById('event-start').value = defStart || '';
   document.getElementById('event-end').value = '';
   document.getElementById('modal-delete').style.display = 'none';
+
+  // 新規追加時はタイプ切り替えを表示、タイマーセクションは非表示
+  document.querySelector('.type-toggle').style.display = '';
+  document.getElementById('modal-timer-section').style.display = 'none';
+
   syncModalUI();
   document.getElementById('event-modal').classList.add('open');
 }
@@ -597,6 +735,20 @@ function openEditModal(ev, type) {
   document.getElementById('event-start').value = ev.startTime;
   document.getElementById('event-end').value = ev.endTime;
   document.getElementById('modal-delete').style.display = '';
+
+  // 編集時はタイプ切り替えを非表示（予定は予定、実績は実績として保存）
+  const typeToggle = document.querySelector('.type-toggle');
+  typeToggle.style.display = 'none';
+
+  // 予定イベントのみ：タイマーセクション表示
+  const timerSec = document.getElementById('modal-timer-section');
+  if (type === 'planned') {
+    timerSec.style.display = '';
+    updateModalTimerSection(ev.id);
+  } else {
+    timerSec.style.display = 'none';
+  }
+
   syncModalUI();
   document.getElementById('event-modal').classList.add('open');
 }
@@ -620,13 +772,18 @@ function handleSaveModal() {
 
   const ev = { id: S.mEditId || genId(), title, startTime:start, endTime:end, category:S.mCat };
 
-  // 既存を削除（両方から）
   if (S.mEditId) {
-    S.planned = S.planned.filter(e => e.id !== S.mEditId);
-    S.actual  = S.actual.filter(e  => e.id !== S.mEditId);
+    // 編集の場合：元のタイプのまま更新（予定は予定、実績は実績）
+    if (S.mEditType === 'planned') {
+      S.planned = S.planned.map(e => e.id === S.mEditId ? ev : e);
+    } else {
+      S.actual = S.actual.map(e => e.id === S.mEditId ? ev : e);
+    }
+  } else {
+    // 新規追加
+    if (S.mMode === 'planned') S.planned.push(ev);
+    else                        S.actual.push(ev);
   }
-  if (S.mMode === 'planned') S.planned.push(ev);
-  else                        S.actual.push(ev);
 
   closeModal();
   renderTimeline();
@@ -783,6 +940,7 @@ function setupListeners() {
   document.getElementById('modal-delete').addEventListener('click', handleDeleteModal);
   document.getElementById('toggle-planned').addEventListener('click', () => { S.mMode='planned'; syncModalUI(); });
   document.getElementById('toggle-actual').addEventListener('click',  () => { S.mMode='actual';  syncModalUI(); });
+  document.getElementById('btn-timer-action').addEventListener('click', handleModalTimerAction);
   document.querySelectorAll('.cat-btn').forEach(b =>
     b.addEventListener('click', () => { S.mCat=b.dataset.cat; syncModalUI(); }));
   document.getElementById('event-modal').addEventListener('click', function(e) {
