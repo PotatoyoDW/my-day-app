@@ -318,6 +318,18 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-size: 14px; color: #AAA; }
 
+    /* ====== DATE NAV (翌日・前日ナビ) ====== */
+    .date-nav-bar { background: white; padding: 6px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #E0E0E0; flex-shrink: 0; gap: 8px; }
+    .date-nav-btn { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #E0E0E0; background: white; font-size: 14px; cursor: pointer; color: #5B8DB8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .date-nav-btn:disabled { opacity: 0.3; cursor: default; }
+    .date-nav-center { flex: 1; text-align: center; }
+    .date-nav-label { font-size: 14px; font-weight: 700; color: #2D3436; }
+    .date-nav-sub { font-size: 11px; color: #AAA; margin-top: 1px; }
+    .date-nav-today-btn { display: inline-block; padding: 2px 8px; border-radius: 10px; background: #5B8DB8; color: white; font-size: 11px; font-weight: 600; border: none; cursor: pointer; margin-top: 2px; }
+    .date-nav-badge-today { display: inline-block; padding: 2px 8px; border-radius: 10px; background: #EEF4FB; color: #5B8DB8; font-size: 11px; font-weight: 600; }
+    .date-nav-badge-tomorrow { display: inline-block; padding: 2px 8px; border-radius: 10px; background: #FFF3EE; color: #E76F51; font-size: 11px; font-weight: 600; }
+    .date-nav-badge-past { display: inline-block; padding: 2px 8px; border-radius: 10px; background: #F5F5F5; color: #AAA; font-size: 11px; font-weight: 600; }
+
     /* ====== FOOD TAB ====== */
     .food-wrapper { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 12px; padding-bottom: 40px; }
     .food-wrapper::-webkit-scrollbar { display: none; }
@@ -367,6 +379,15 @@
 
   <!-- TODAY -->
   <section class="tab-content active" id="tab-timeline">
+    <!-- 日付ナビゲーション -->
+    <div class="date-nav-bar" id="date-nav-bar">
+      <button class="date-nav-btn" id="date-nav-prev" title="前の日">‹</button>
+      <div class="date-nav-center">
+        <div class="date-nav-label" id="date-nav-label"></div>
+        <div id="date-nav-badge"></div>
+      </div>
+      <button class="date-nav-btn" id="date-nav-next" title="次の日">›</button>
+    </div>
     <div class="day-type-bar">
       <button class="day-type-btn" data-type="出勤">🏢 出勤</button>
       <button class="day-type-btn" data-type="在宅">🏠 在宅</button>
@@ -440,6 +461,10 @@
           <span class="meal-label">昼ごはん</span>
           <span class="meal-saved-badge" id="meal-lunch-badge" style="display:none">✓ 保存済</span>
         </div>
+        <div class="meal-default-hint" id="lunch-default-hint" style="display:none">
+          <div class="meal-default-hint-label">🍱 いつものお弁当</div>
+          <div class="meal-default-hint-text" id="lunch-default-hint-text"></div>
+        </div>
         <textarea class="meal-input" id="meal-lunch" placeholder="例：コンビニのサンドイッチ、外食..."></textarea>
       </div>
 
@@ -467,12 +492,18 @@
         <button class="btn-primary" id="meal-save-btn">💾 今日の食事を保存する</button>
       </div>
 
-      <!-- デフォルト朝食設定 -->
+      <!-- デフォルト設定セクション -->
       <div class="meal-default-section">
-        <div class="meal-default-title">⚙️ デフォルト朝食の設定</div>
-        <div class="meal-default-sub">毎日ほぼ同じ朝食を登録しておくと、毎朝ヒントとして表示されます。タップすると朝食欄にコピーされます。</div>
-        <textarea class="meal-input" id="meal-breakfast-default" placeholder="例：金のつぶ納豆1パック、生卵1個、雑穀米100g、味噌汁" style="min-height:60px"></textarea>
-        <button class="btn-meal-default-save" id="meal-default-save-btn">💾 デフォルト朝食を保存</button>
+        <div class="meal-default-title">⚙️ デフォルト食事の設定</div>
+        <div class="meal-default-sub">毎日ほぼ同じ食事を登録しておくと、ヒントとして表示されます。タップすると自動入力されます。</div>
+
+        <div class="form-label" style="margin-top:10px">🌅 デフォルト朝食</div>
+        <textarea class="meal-input" id="meal-breakfast-default" placeholder="例：金のつぶ納豆1パック、生卵1個、雑穀米100g、味噌汁" style="min-height:56px"></textarea>
+
+        <div class="form-label" style="margin-top:10px">🍱 デフォルトお弁当（昼食）</div>
+        <textarea class="meal-input" id="meal-lunch-default" placeholder="例：自作弁当（白米150g、鶏むね肉100g、野菜炒め）" style="min-height:56px"></textarea>
+
+        <button class="btn-meal-default-save" id="meal-default-save-btn">💾 デフォルト設定を保存</button>
       </div>
     </div>
   </section>
@@ -891,14 +922,15 @@ function buildTemplateEvents(dayType, wakeTimeStr) {
 // アプリ状態
 // ================================================================
 const S = {
-  today:'', dayType:'', planned:[], actual:[], journal:'', plankRecords:[],
+  today:'', viewDate:'',  // viewDate: 現在表示中の日付（今日以外も可）
+  dayType:'', planned:[], actual:[], journal:'', plankRecords:[],
   meals:{ breakfast:'', lunch:'', dinner:'', note:'' },
   calYear:0, calMonth:0, calDayTypes:{},
   statsYear:0, statsMonth:0,
   saveTimer:null, timers:{},
   mMode:'planned', mCat:'その他', mEditId:null, mEditType:null,
   tmplEvs:[],
-  defaultBreakfast:'',
+  defaultBreakfast:'', defaultLunch:'',
   // plank timer
   plankTarget:60, plankRemaining:60, plankInterval:null, plankStartedAt:null
 };
@@ -928,8 +960,9 @@ async function loadDay(ds){
   } else { S.dayType=''; S.planned=[]; S.actual=[]; S.journal=''; S.plankRecords=[]; S.meals={ breakfast:'', lunch:'', dinner:'', note:'' }; }
 }
 async function saveDay(){
-  await db.collection('days').doc(S.today).set({
-    date:S.today, dayType:S.dayType, planned:S.planned, actual:S.actual, journal:S.journal, plankRecords:S.plankRecords,
+  const ds=S.viewDate||S.today;
+  await db.collection('days').doc(ds).set({
+    date:ds, dayType:S.dayType, planned:S.planned, actual:S.actual, journal:S.journal, plankRecords:S.plankRecords,
     meals:S.meals,
     updatedAt:firebase.firestore.FieldValue.serverTimestamp()
   },{merge:true});
@@ -983,27 +1016,97 @@ function navigateFromDrawer(tab){
 }
 
 // ================================================================
+// 📅 日付ナビゲーション（翌日・前日の予定組み）
+// ================================================================
+function addDays(dateStr, n){
+  const d=new Date(dateStr+'T12:00:00');
+  d.setDate(d.getDate()+n);
+  return toDateStr(d);
+}
+
+function dateDiffDays(a, b){
+  // b - a の日数差
+  const da=new Date(a+'T12:00:00'), db=new Date(b+'T12:00:00');
+  return Math.round((db-da)/(1000*60*60*24));
+}
+
+function renderDateNavBar(){
+  const diff=dateDiffDays(S.today, S.viewDate);
+  const WDAYS=['日','月','火','水','木','金','土'];
+  const d=new Date(S.viewDate+'T12:00:00');
+  const label=`${d.getMonth()+1}月${d.getDate()}日（${WDAYS[d.getDay()]}）`;
+  document.getElementById('date-nav-label').textContent=label;
+
+  let badge='';
+  if(diff===0) badge='<span class="date-nav-badge-today">今日</span>';
+  else if(diff===1) badge='<span class="date-nav-badge-tomorrow">明日</span>';
+  else if(diff===-1) badge='<span class="date-nav-badge-past">昨日</span>';
+  else if(diff>1) badge=`<span class="date-nav-badge-tomorrow">${diff}日後</span>`;
+  else badge=`<span class="date-nav-badge-past">${Math.abs(diff)}日前</span>`;
+
+  if(diff!==0) badge+=` <button class="date-nav-today-btn" onclick="jumpToToday()">今日に戻る</button>`;
+  document.getElementById('date-nav-badge').innerHTML=badge;
+
+  // 未来は最大2日先まで（翌々日）
+  document.getElementById('date-nav-next').disabled=diff>=2;
+}
+
+async function navigateDate(delta){
+  // 現在のデータを保存してから別の日へ
+  if(S.saveTimer){ clearTimeout(S.saveTimer); await saveDay().catch(console.error); S.saveTimer=null; }
+  S.viewDate=addDays(S.viewDate, delta);
+  S.timers={};
+  await loadDay(S.viewDate);
+  refreshDayType();
+  refreshJournalBtn();
+  renderTimeline();
+  renderDateNavBar();
+}
+
+async function jumpToToday(){
+  if(S.viewDate===S.today) return;
+  if(S.saveTimer){ clearTimeout(S.saveTimer); await saveDay().catch(console.error); S.saveTimer=null; }
+  S.viewDate=S.today;
+  S.timers={};
+  await loadDay(S.viewDate);
+  refreshDayType();
+  refreshJournalBtn();
+  renderTimeline();
+  renderDateNavBar();
+}
+
+// ================================================================
 // 🍽️ 食事記録タブ
 // ================================================================
 async function loadDefaultBreakfast(){
   try {
     const snap=await db.collection('settings').doc('defaults').get();
-    if(snap.exists && snap.data().defaultBreakfast){
-      S.defaultBreakfast=snap.data().defaultBreakfast;
+    if(snap.exists){
+      S.defaultBreakfast=snap.data().defaultBreakfast||'金のつぶ納豆1パック、生卵1個、雑穀米100g、味噌汁';
+      S.defaultLunch=snap.data().defaultLunch||'';
     } else {
       S.defaultBreakfast='金のつぶ納豆1パック、生卵1個、雑穀米100g、味噌汁';
+      S.defaultLunch='';
     }
-  } catch(e){ S.defaultBreakfast='金のつぶ納豆1パック、生卵1個、雑穀米100g、味噌汁'; }
+  } catch(e){
+    S.defaultBreakfast='金のつぶ納豆1パック、生卵1個、雑穀米100g、味噌汁';
+    S.defaultLunch='';
+  }
 }
 
-async function saveDefaultBreakfast(){
-  const val=document.getElementById('meal-breakfast-default').value.trim();
-  if(!val){ showToast('デフォルト朝食を入力してください'); return; }
+async function saveDefaultMeals(){
+  const bfVal=document.getElementById('meal-breakfast-default').value.trim();
+  const lnVal=document.getElementById('meal-lunch-default').value.trim();
   try {
-    await db.collection('settings').doc('defaults').set({ defaultBreakfast:val, updatedAt:firebase.firestore.FieldValue.serverTimestamp() },{merge:true});
-    S.defaultBreakfast=val;
+    await db.collection('settings').doc('defaults').set({
+      defaultBreakfast: bfVal||S.defaultBreakfast,
+      defaultLunch: lnVal,
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+    },{merge:true});
+    if(bfVal) S.defaultBreakfast=bfVal;
+    if(lnVal!==undefined) S.defaultLunch=lnVal;
     renderFoodTab();
-    showToast('✅ デフォルト朝食を保存しました');
+    showToast('✅ デフォルト設定を保存しました');
   } catch(e){ showToast('⚠️ 保存に失敗しました'); }
 }
 
@@ -1042,8 +1145,19 @@ function renderFoodTab(){
     hint.style.display='none';
   }
 
+  // デフォルト昼食ヒント
+  const lunchHint=document.getElementById('lunch-default-hint');
+  const lunchHintText=document.getElementById('lunch-default-hint-text');
+  if(S.defaultLunch){
+    lunchHint.style.display='';
+    lunchHintText.textContent=S.defaultLunch;
+  } else {
+    lunchHint.style.display='none';
+  }
+
   // デフォルト設定欄
   document.getElementById('meal-breakfast-default').value=S.defaultBreakfast||'';
+  document.getElementById('meal-lunch-default').value=S.defaultLunch||'';
 }
 
 function saveMeals(){
@@ -1680,15 +1794,31 @@ function setupListeners(){
   document.querySelectorAll('#ti-cat-picker .cat-btn').forEach(b=>b.addEventListener('click',()=>{ TI.cat=b.dataset.cat; document.querySelectorAll('#ti-cat-picker .cat-btn').forEach(c=>c.classList.toggle('selected',c.dataset.cat===TI.cat)); }));
   // Food tab
   document.getElementById('meal-save-btn').addEventListener('click', saveMeals);
-  document.getElementById('meal-default-save-btn').addEventListener('click', saveDefaultBreakfast);
+  document.getElementById('meal-default-save-btn').addEventListener('click', saveDefaultMeals);
+  // 朝食デフォルトヒントをタップで自動入力
   document.getElementById('breakfast-default-hint').addEventListener('click',()=>{
     const bf=document.getElementById('meal-breakfast');
     if(!bf.value.trim()){
       bf.value=S.defaultBreakfast;
       bf.classList.add('filled');
     } else {
-      const confirmed=confirm('朝食欄にデフォルト内容を追記しますか？');
-      if(confirmed){ bf.value=(bf.value.trim()+'\n'+S.defaultBreakfast).trim(); bf.classList.add('filled'); }
+      if(confirm('朝食欄にデフォルト内容を追記しますか？')){
+        bf.value=(bf.value.trim()+'\n'+S.defaultBreakfast).trim();
+        bf.classList.add('filled');
+      }
+    }
+  });
+  // 昼食デフォルトヒントをタップで自動入力
+  document.getElementById('lunch-default-hint').addEventListener('click',()=>{
+    const ln=document.getElementById('meal-lunch');
+    if(!ln.value.trim()){
+      ln.value=S.defaultLunch;
+      ln.classList.add('filled');
+    } else {
+      if(confirm('昼食欄にいつものお弁当内容を追記しますか？')){
+        ln.value=(ln.value.trim()+'\n'+S.defaultLunch).trim();
+        ln.classList.add('filled');
+      }
     }
   });
   // input変化で filled クラス更新
@@ -1697,6 +1827,9 @@ function setupListeners(){
       this.classList.toggle('filled',!!(this.value.trim()));
     });
   });
+  // 日付ナビゲーション
+  document.getElementById('date-nav-prev').addEventListener('click',()=>navigateDate(-1));
+  document.getElementById('date-nav-next').addEventListener('click',()=>navigateDate(1));
 }
 
 // ================================================================
@@ -1704,7 +1837,8 @@ function setupListeners(){
 // ================================================================
 async function init(){
   const now=new Date();
-  S.today=toDateStr(now); S.calYear=now.getFullYear(); S.calMonth=now.getMonth()+1; S.statsYear=now.getFullYear(); S.statsMonth=now.getMonth()+1;
+  S.today=toDateStr(now); S.viewDate=S.today;
+  S.calYear=now.getFullYear(); S.calMonth=now.getMonth()+1; S.statsYear=now.getFullYear(); S.statsMonth=now.getMonth()+1;
   const WDAYS=['日','月','火','水','木','金','土'];
   document.getElementById('header-date').textContent=`${now.getMonth()+1}月${now.getDate()}日（${WDAYS[now.getDay()]}）`;
   setupListeners();
@@ -1712,6 +1846,7 @@ async function init(){
   refreshDayType();
   refreshJournalBtn();
   renderTimeline();
+  renderDateNavBar();
   document.getElementById('loading-overlay').classList.add('hidden');
   setInterval(()=>{ if(document.getElementById('tab-timeline').classList.contains('active')) renderTimeline(); },60000);
 }
