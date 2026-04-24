@@ -633,6 +633,9 @@
       <label class="form-label">メモ（サプリ名など）</label>
       <textarea class="form-input memo-input" id="event-memo" placeholder="例：・Lチロシン 2錠&#10;・ヘム鉄 2錠"></textarea>
     </div>
+    <div class="tmpl-replace-row" id="modal-also-actual-row">
+      <label><input type="checkbox" id="modal-also-actual">この時間を実績にも登録する</label>
+    </div>
     <div class="modal-actions">
       <button class="btn-cancel" id="modal-cancel">キャンセル</button>
       <button class="btn-delete" id="modal-delete" style="display:none">🗑</button>
@@ -1547,6 +1550,7 @@ function openAddModal(mode,defStart){
   document.getElementById('event-title').value=''; document.getElementById('event-start').value=defStart||''; document.getElementById('event-end').value=''; document.getElementById('event-memo').value='';
   document.getElementById('modal-delete').style.display='none'; document.getElementById('type-toggle-row').style.display=''; document.getElementById('modal-timer-section').style.display='none';
   document.getElementById('btn-manual-toggle').style.display='none'; document.getElementById('manual-time-section').style.display='none';
+  document.getElementById('modal-also-actual').checked=false;
   syncModalUI(); document.getElementById('event-modal').classList.add('open');
 }
 function openEditModal(ev,type){
@@ -1571,15 +1575,21 @@ function syncModalUI(){
   document.getElementById('toggle-planned').classList.toggle('active',S.mMode==='planned');
   document.getElementById('toggle-actual').classList.toggle('active',S.mMode==='actual');
   document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('selected',b.dataset.cat===S.mCat));
+  // 「実績にも登録」チェックボックスは新規追加・予定モードのときのみ表示
+  const showAlso = (S.mMode==='planned' && !S.mEditId);
+  document.getElementById('modal-also-actual-row').style.display = showAlso ? '' : 'none';
 }
 function handleSaveModal(){
   const title=document.getElementById('event-title').value.trim(), start=document.getElementById('event-start').value, end=document.getElementById('event-end').value;
   if(!title){ showToast('タイトルを入力してください'); return; } if(!start||!end){ showToast('時刻を入力してください'); return; } if(minFromStr(start)>=minFromStr(end)){ showToast('終了は開始より後にしてください'); return; }
   const memo=document.getElementById('event-memo').value;
   const ev={id:S.mEditId||genId(),title,startTime:start,endTime:end,category:S.mCat,memo};
+  const alsoActual=!S.mEditId && S.mMode==='planned' && document.getElementById('modal-also-actual').checked;
   if(S.mEditId){ if(S.mEditType==='planned') S.planned=S.planned.map(e=>e.id===S.mEditId?ev:e); else S.actual=S.actual.map(e=>e.id===S.mEditId?ev:e); }
   else { if(S.mMode==='planned') S.planned.push(ev); else S.actual.push(ev); }
-  closeModal(); renderTimeline(); scheduleSave(); showToast(S.mEditId?'✏️ 更新しました':'✅ 追加しました');
+  if(alsoActual) S.actual.push({...ev, id:genId(), fromPlannedId:ev.id});
+  closeModal(); renderTimeline(); scheduleSave();
+  showToast(S.mEditId?'✏️ 更新しました': alsoActual?'✅ 予定＋実績に追加しました':'✅ 追加しました');
 }
 function handleDeleteModal(){
   if(!S.mEditId||!confirm('このイベントを削除しますか？')) return;
@@ -1730,8 +1740,8 @@ function setupListeners(){
   document.getElementById('modal-cancel').addEventListener('click',closeModal);
   document.getElementById('modal-save').addEventListener('click',handleSaveModal);
   document.getElementById('modal-delete').addEventListener('click',handleDeleteModal);
-  document.getElementById('toggle-planned').addEventListener('click',()=>{ S.mMode='planned'; syncModalUI(); });
-  document.getElementById('toggle-actual').addEventListener('click',()=>{ S.mMode='actual'; syncModalUI(); });
+  document.getElementById('toggle-planned').addEventListener('click',()=>{ S.mMode='planned'; document.getElementById('modal-also-actual').checked=false; syncModalUI(); });
+  document.getElementById('toggle-actual').addEventListener('click',()=>{ S.mMode='actual'; document.getElementById('modal-also-actual').checked=false; syncModalUI(); });
   document.querySelectorAll('.cat-btn').forEach(b=>b.addEventListener('click',()=>{ S.mCat=b.dataset.cat; syncModalUI(); }));
   document.getElementById('event-modal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
   document.getElementById('btn-timer-action').addEventListener('click',handleModalTimerAction);
