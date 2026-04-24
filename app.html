@@ -318,6 +318,36 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-size: 14px; color: #AAA; }
 
+    /* ====== NUTRITION STATS ====== */
+    .nutrition-summary { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .nutrition-summary-item { flex: 1; min-width: 70px; background: #F8F9FA; border-radius: 12px; padding: 10px 8px; text-align: center; }
+    .nutrition-val { font-size: 20px; font-weight: 800; line-height: 1.1; }
+    .nutrition-val.cal { color: #E76F51; }
+    .nutrition-val.prot { color: #3A7BD5; }
+    .nutrition-val.fat  { color: #F4A261; }
+    .nutrition-val.carb { color: #52B788; }
+    .nutrition-unit { font-size: 10px; color: #AAA; margin-top: 2px; }
+    .nutrition-label { font-size: 10px; color: #888; margin-top: 3px; font-weight: 600; }
+    .pfc-bar-wrap { margin-top: 10px; }
+    .pfc-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .pfc-bar-label { font-size: 12px; font-weight: 700; width: 14px; flex-shrink: 0; }
+    .pfc-bar-label.p { color: #3A7BD5; }
+    .pfc-bar-label.f { color: #F4A261; }
+    .pfc-bar-label.c { color: #52B788; }
+    .pfc-bar-bg { flex: 1; height: 14px; background: #F0F0F0; border-radius: 7px; overflow: hidden; }
+    .pfc-bar-fill { height: 100%; border-radius: 7px; min-width: 4px; transition: width 0.4s; }
+    .pfc-bar-fill.p { background: linear-gradient(to right, #5B9BD5, #3A7BD5); }
+    .pfc-bar-fill.f { background: linear-gradient(to right, #F7C48A, #F4A261); }
+    .pfc-bar-fill.c { background: linear-gradient(to right, #7DCAA1, #52B788); }
+    .pfc-bar-val { font-size: 11px; color: #555; width: 52px; flex-shrink: 0; text-align: right; font-variant-numeric: tabular-nums; }
+    .nutrition-daily-wrap { margin-top: 12px; }
+    .nutrition-daily-row { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+    .nutrition-daily-date { font-size: 10px; color: #AAA; width: 28px; text-align: right; flex-shrink: 0; }
+    .nutrition-daily-bar-bg { flex: 1; height: 10px; background: #F0F0F0; border-radius: 5px; overflow: hidden; }
+    .nutrition-daily-bar-fill { height: 100%; border-radius: 5px; background: linear-gradient(to right, #F7C48A, #E76F51); min-width: 3px; }
+    .nutrition-daily-kcal { font-size: 10px; color: #999; width: 42px; flex-shrink: 0; text-align: right; font-variant-numeric: tabular-nums; }
+    .nutrition-no-data { font-size: 13px; color: #CCC; text-align: center; padding: 16px 0; }
+
     /* ====== DATE NAV (翌日・前日ナビ) ====== */
     .date-nav-bar { background: white; padding: 6px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #E0E0E0; flex-shrink: 0; gap: 8px; }
     .date-nav-btn { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #E0E0E0; background: white; font-size: 14px; cursor: pointer; color: #5B8DB8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -988,7 +1018,9 @@ async function loadStats(y,m){
   const days=new Date(y,m,0).getDate();
   const dates=Array.from({length:days},(_,i)=>`${y}-${String(m).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`);
   const snaps=await Promise.all(dates.map(ds=>db.collection('days').doc(ds).get()));
-  const dtc={}, plankByDay={}; let rec=0, plankTotal=0, plankBest=0, plankSessions=0;
+  const dtc={}, plankByDay={}, nutritionByDay={};
+  let rec=0, plankTotal=0, plankBest=0, plankSessions=0;
+  let nutDays=0, sumCal=0, sumP=0, sumF=0, sumC=0;
   snaps.forEach((snap,i)=>{
     if(!snap.exists) return; rec++;
     const d=snap.data();
@@ -1001,8 +1033,21 @@ async function loadStats(y,m){
       const best=Math.max(...d.plankRecords.map(r=>r.actual));
       if(best>plankBest) plankBest=best;
     }
+    if(d.nutrition&&d.nutrition.calories){
+      nutritionByDay[dates[i]]=d.nutrition;
+      sumCal+=d.nutrition.calories||0;
+      sumP+=d.nutrition.protein||0;
+      sumF+=d.nutrition.fat||0;
+      sumC+=d.nutrition.carbs||0;
+      nutDays++;
+    }
   });
-  return { dtc, rec, total:days, plankTotal, plankBest, plankSessions, plankByDay };
+  const avgCal=nutDays?Math.round(sumCal/nutDays):0;
+  const avgP=nutDays?Math.round(sumP/nutDays):0;
+  const avgF=nutDays?Math.round(sumF/nutDays):0;
+  const avgC=nutDays?Math.round(sumC/nutDays):0;
+  return { dtc, rec, total:days, plankTotal, plankBest, plankSessions, plankByDay,
+           nutritionByDay, nutDays, avgCal, avgP, avgF, avgC };
 }
 
 // ================================================================
@@ -1672,7 +1717,7 @@ function renderCalendar(){
 // ================================================================
 // Stats
 // ================================================================
-function renderStats({dtc,rec,total,plankTotal,plankBest,plankSessions,plankByDay}){
+function renderStats({dtc,rec,total,plankTotal,plankBest,plankSessions,plankByDay,nutritionByDay,nutDays,avgCal,avgP,avgF,avgC}){
   const el=document.getElementById('stats-content'); el.innerHTML='';
   // Day type
   const dCard=document.createElement('div'); dCard.className='stats-card';
@@ -1701,6 +1746,65 @@ function renderStats({dtc,rec,total,plankTotal,plankBest,plankSessions,plankByDa
     }
   }
   el.appendChild(pCard);
+
+  // ── 栄養・PFCカード ──────────────────────────────────
+  const nCard=document.createElement('div'); nCard.className='stats-card';
+  nCard.innerHTML=`<h3>🍽️ カロリー・PFCバランス${nutDays?`（${nutDays}日記録）`:''}`;
+  if(!nutDays){
+    nCard.innerHTML+=`<p class="nutrition-no-data">まだ記録がありません<br><span style="font-size:11px">毎朝7時のスケジュールタスクが栄養データを自動計算・保存します</span></p>`;
+  } else {
+    // 平均サマリー
+    nCard.innerHTML+=`
+      <div style="font-size:11px;color:#AAA;margin-bottom:8px">今月の1日平均</div>
+      <div class="nutrition-summary">
+        <div class="nutrition-summary-item">
+          <div class="nutrition-val cal">${avgCal.toLocaleString()}</div>
+          <div class="nutrition-unit">kcal</div>
+          <div class="nutrition-label">カロリー</div>
+        </div>
+        <div class="nutrition-summary-item">
+          <div class="nutrition-val prot">${avgP}</div>
+          <div class="nutrition-unit">g</div>
+          <div class="nutrition-label">タンパク質</div>
+        </div>
+        <div class="nutrition-summary-item">
+          <div class="nutrition-val fat">${avgF}</div>
+          <div class="nutrition-unit">g</div>
+          <div class="nutrition-label">脂質</div>
+        </div>
+        <div class="nutrition-summary-item">
+          <div class="nutrition-val carb">${avgC}</div>
+          <div class="nutrition-unit">g</div>
+          <div class="nutrition-label">炭水化物</div>
+        </div>
+      </div>`;
+    // PFCバー
+    const totalMacCal = avgP*4 + avgF*9 + avgC*4 || 1;
+    const pPct=Math.round(avgP*4/totalMacCal*100), fPct=Math.round(avgF*9/totalMacCal*100), cPct=100-pPct-fPct;
+    nCard.innerHTML+=`
+      <div style="font-size:11px;color:#AAA;margin-bottom:6px;margin-top:12px">PFCカロリー比率（平均）</div>
+      <div class="pfc-bar-wrap">
+        <div class="pfc-bar-row"><span class="pfc-bar-label p">P</span><div class="pfc-bar-bg"><div class="pfc-bar-fill p" style="width:${pPct}%"></div></div><span class="pfc-bar-val">${avgP}g (${pPct}%)</span></div>
+        <div class="pfc-bar-row"><span class="pfc-bar-label f">F</span><div class="pfc-bar-bg"><div class="pfc-bar-fill f" style="width:${fPct}%"></div></div><span class="pfc-bar-val">${avgF}g (${fPct}%)</span></div>
+        <div class="pfc-bar-row"><span class="pfc-bar-label c">C</span><div class="pfc-bar-bg"><div class="pfc-bar-fill c" style="width:${cPct}%"></div></div><span class="pfc-bar-val">${avgC}g (${cPct}%)</span></div>
+      </div>`;
+    // 日別カロリーバー
+    const nutEntries=Object.entries(nutritionByDay).sort(([a],[b])=>a.localeCompare(b));
+    if(nutEntries.length){
+      const maxCal=Math.max(...nutEntries.map(([,n])=>n.calories||0),1);
+      const barHTML=nutEntries.map(([ds,n])=>{
+        const day=parseInt(ds.split('-')[2]);
+        const pct=Math.round((n.calories||0)/maxCal*100);
+        return `<div class="nutrition-daily-row">
+          <span class="nutrition-daily-date">${day}日</span>
+          <div class="nutrition-daily-bar-bg"><div class="nutrition-daily-bar-fill" style="width:${pct}%"></div></div>
+          <span class="nutrition-daily-kcal">${(n.calories||0).toLocaleString()}kcal</span>
+        </div>`;
+      }).join('');
+      nCard.innerHTML+=`<div style="font-size:11px;color:#AAA;margin:12px 0 6px">日別カロリー</div><div class="nutrition-daily-wrap">${barHTML}</div>`;
+    }
+  }
+  el.appendChild(nCard);
 }
 
 // ================================================================
