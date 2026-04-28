@@ -376,6 +376,23 @@
     .meal-input:focus { outline: none; border-color: #5B8DB8; }
     .meal-input.filled { border-color: #52B788; background: #FAFFFE; }
     .meal-save-bar { padding: 2px 0 12px; }
+    /* 食事タブナビ */
+    .meal-tab-nav { display: flex; background: white; border-radius: 14px 14px 0 0; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 0; }
+    .meal-tab-btn { flex: 1; padding: 10px 4px; font-size: 12px; font-weight: 600; color: #AAA; background: none; border: none; border-bottom: 2.5px solid transparent; cursor: pointer; }
+    .meal-tab-btn.active { color: #5B8DB8; border-bottom-color: #5B8DB8; background: #F5F9FF; }
+    .meal-tab-btn.done { color: #52B788; }
+    .meal-tab-btn.done.active { color: #5B8DB8; }
+    /* 品目入力行 */
+    .meal-item-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .meal-item-name { flex: 1; padding: 9px 10px; border: 1.5px solid #E8E8E8; border-radius: 9px; font-size: 13px; color: #2D3436; background: white; -webkit-appearance: none; font-family: inherit; }
+    .meal-item-amount { width: 66px; padding: 9px 6px; border: 1.5px solid #E8E8E8; border-radius: 9px; font-size: 13px; color: #2D3436; text-align: center; -webkit-appearance: none; font-family: inherit; }
+    .meal-item-name:focus, .meal-item-amount:focus { outline: none; border-color: #5B8DB8; }
+    .meal-item-header { display: flex; font-size: 10px; color: #AAA; font-weight: 600; padding: 0 2px 4px; }
+    .meal-item-header span:first-child { flex: 1; }
+    .meal-item-header span:last-child { width: 66px; text-align: center; }
+    /* 各タブの保存ボタン */
+    .meal-save-tab-btn { width: 100%; padding: 10px 14px; border-radius: 10px; background: #F0F4F8; color: #5B8DB8; font-size: 13px; font-weight: 600; border: 1.5px solid #D0D8E4; cursor: pointer; margin-top: 6px; }
+    .meal-save-tab-btn.saved { background: #EFF9F4; color: #16A661; border-color: #B2DFDB; }
     .meal-default-section { background: #F8F9FA; border-radius: 16px; padding: 14px; margin-top: 4px; border: 1.5px dashed #E0E0E0; }
     .meal-default-title { font-size: 13px; font-weight: 700; color: #888; margin-bottom: 4px; }
     .meal-default-sub { font-size: 11px; color: #AAA; margin-bottom: 10px; line-height: 1.5; }
@@ -528,60 +545,39 @@
     <div class="food-wrapper" id="food-wrapper">
       <div class="meal-date-header" id="meal-date-header"></div>
 
-      <!-- 朝ごはん -->
-      <div class="meal-card">
-        <div class="meal-header">
-          <span class="meal-icon">🌅</span>
-          <span class="meal-label">朝ごはん</span>
-          <span class="meal-saved-badge" id="meal-breakfast-badge" style="display:none">✓ 保存済</span>
-          <button class="preset-add-btn" onclick="openPresetModal('breakfast')">＋ プリセット</button>
-        </div>
-        <div class="meal-default-hint" id="breakfast-default-hint" style="display:none">
-          <div class="meal-default-hint-label">💡 いつもの朝食</div>
-          <div class="meal-default-hint-text" id="breakfast-default-hint-text"></div>
-        </div>
-        <textarea class="meal-input" id="meal-breakfast" placeholder="例：納豆ご飯、味噌汁、卵焼き、ヨーグルト..."></textarea>
+      <!-- 食事タブナビ -->
+      <div class="meal-tab-nav">
+        <button class="meal-tab-btn active" data-tab="breakfast" onclick="switchMealTab('breakfast')">🌅 朝</button>
+        <button class="meal-tab-btn" data-tab="lunch" onclick="switchMealTab('lunch')">☀️ 昼</button>
+        <button class="meal-tab-btn" data-tab="dinner" onclick="switchMealTab('dinner')">🌙 夜</button>
+        <button class="meal-tab-btn" data-tab="snack" onclick="switchMealTab('snack')">📝 間食</button>
       </div>
 
-      <!-- 昼ごはん -->
-      <div class="meal-card">
+      <!-- アクティブな食事カード（タブ切替でJS更新） -->
+      <div class="meal-card" style="border-radius: 0 0 16px 16px; margin-top: 0;">
         <div class="meal-header">
-          <span class="meal-icon">☀️</span>
-          <span class="meal-label">昼ごはん</span>
-          <span class="meal-saved-badge" id="meal-lunch-badge" style="display:none">✓ 保存済</span>
-          <button class="preset-add-btn" onclick="openPresetModal('lunch')">＋ プリセット</button>
+          <span class="meal-icon" id="active-meal-icon">🌅</span>
+          <span class="meal-label" id="active-meal-label">朝ごはん</span>
+          <span class="meal-saved-badge" id="active-meal-badge" style="display:none">✓ 保存済</span>
+          <button class="preset-add-btn" id="active-preset-btn" onclick="openPresetModal(S.activeMealTab)">＋ プリセット</button>
         </div>
-        <div class="meal-default-hint" id="lunch-default-hint" style="display:none">
-          <div class="meal-default-hint-label">🍱 いつものお弁当</div>
-          <div class="meal-default-hint-text" id="lunch-default-hint-text"></div>
+        <div id="breakfast-default-hint" style="display:none">
+          <div class="meal-default-hint" onclick="applyDefaultMeal('breakfast')">
+            <div class="meal-default-hint-label">💡 いつもの朝食（タップで入力）</div>
+            <div class="meal-default-hint-text" id="breakfast-default-hint-text"></div>
+          </div>
         </div>
-        <textarea class="meal-input" id="meal-lunch" placeholder="例：コンビニのサンドイッチ、外食..."></textarea>
+        <!-- 列ヘッダー -->
+        <div class="meal-item-header"><span>食品名</span><span>量</span></div>
+        <!-- 10行の品目入力欄（JS で管理） -->
+        <div id="meal-items-list"></div>
+        <!-- この食事を保存ボタン -->
+        <button class="meal-save-tab-btn" id="meal-save-tab-btn" onclick="saveMealTab()">💾 この食事を保存</button>
       </div>
 
-      <!-- 夕ごはん -->
-      <div class="meal-card">
-        <div class="meal-header">
-          <span class="meal-icon">🌙</span>
-          <span class="meal-label">夕ごはん</span>
-          <span class="meal-saved-badge" id="meal-dinner-badge" style="display:none">✓ 保存済</span>
-          <button class="preset-add-btn" onclick="openPresetModal('dinner')">＋ プリセット</button>
-        </div>
-        <textarea class="meal-input" id="meal-dinner" placeholder="例：鶏むね肉のソテー、野菜炒め、味噌汁..."></textarea>
-      </div>
-
-      <!-- 間食・メモ -->
-      <div class="meal-card">
-        <div class="meal-header">
-          <span class="meal-icon">📝</span>
-          <span class="meal-label">間食・メモ</span>
-          <button class="preset-add-btn" onclick="openPresetModal('note')">＋ プリセット</button>
-        </div>
-        <textarea class="meal-input" id="meal-note" placeholder="例：プロテインバー、コーヒー2杯、プロテイン..."></textarea>
-      </div>
-
-      <!-- 保存＆分析ボタン -->
+      <!-- 全部まとめて分析ボタン -->
       <div class="meal-save-bar">
-        <button class="meal-analyze-btn" id="meal-save-btn">🔍 保存してカロリーを計算する</button>
+        <button class="meal-analyze-btn" id="meal-save-btn">🔍 全部まとめて分析する</button>
       </div>
 
       <!-- 栄養分析カード（保存後に表示） -->
@@ -1046,7 +1042,8 @@ function buildTemplateEvents(dayType, wakeTimeStr) {
 const S = {
   today:'', viewDate:'',  // viewDate: 現在表示中の日付（今日以外も可）
   dayType:'', planned:[], actual:[], journal:'', plankRecords:[],
-  meals:{ breakfast:'', lunch:'', dinner:'', note:'' },
+  meals:{ breakfast:[], lunch:[], dinner:[], snack:[] },
+  activeMealTab: 'breakfast',   // 現在表示中の食事タブ
   mealAnalysis: null,   // 最後に計算した栄養分析結果
   foodPresets: [],      // GASから取得したプリセット一覧
   presetTarget: '',     // プリセットモーダルで追加先の食事キー
@@ -1082,9 +1079,9 @@ async function loadDay(ds){
   if(snap.exists){
     const d=snap.data();
     S.dayType=d.dayType||''; S.planned=d.planned||[]; S.actual=d.actual||[]; S.journal=d.journal||''; S.plankRecords=d.plankRecords||[];
-    S.meals=d.meals||{ breakfast:'', lunch:'', dinner:'', note:'' };
+    S.meals = migrateMeals(d.meals);
     S.mealAnalysis=d.mealAnalysis||null;
-  } else { S.dayType=''; S.planned=[]; S.actual=[]; S.journal=''; S.plankRecords=[]; S.meals={ breakfast:'', lunch:'', dinner:'', note:'' }; S.mealAnalysis=null; }
+  } else { S.dayType=''; S.planned=[]; S.actual=[]; S.journal=''; S.plankRecords=[]; S.meals={ breakfast:[], lunch:[], dinner:[], snack:[] }; S.mealAnalysis=null; }
 }
 async function saveDay(){
   const ds=S.viewDate||S.today;
@@ -1252,56 +1249,144 @@ async function saveDefaultMeals(){
   } catch(e){ showToast('⚠️ 保存に失敗しました'); }
 }
 
+// ── 食事ヘルパー ──────────────────────────────────────
+const MEAL_META = {
+  breakfast: { icon:'🌅', label:'朝ごはん' },
+  lunch:     { icon:'☀️', label:'昼ごはん' },
+  dinner:    { icon:'🌙', label:'夕ごはん' },
+  snack:     { icon:'📝', label:'間食' }
+};
+const MEAL_PLACEHOLDERS = {
+  breakfast: ['食パン6枚切り','自家製サラダチキン','目玉焼き（油なし）','ブラックコーヒー','クノール カップスープ','ヨーグルト','','','',''],
+  lunch:     ['いつもの雑穀米','ほうれん草炒め','塩引き鮭','味の素プロテインからあげ','みそ汁','','','','',''],
+  dinner:    ['刺身 まぐろ','刺身 鯛','豆腐','野菜スープ','','','','','',''],
+  snack:     ['プロテイン','プロテインバー','ブラックコーヒー','','','','','','','']
+};
+
+function emptyMeal(){ return Array.from({length:10}, () => ({name:'', amount:''})); }
+
+// 旧フォーマット（文字列）→新フォーマット（配列）マイグレーション
+function migrateMeals(meals){
+  if(!meals) return { breakfast:emptyMeal(), lunch:emptyMeal(), dinner:emptyMeal(), snack:emptyMeal() };
+  const convert = (val) => {
+    if(Array.isArray(val)){
+      const base = emptyMeal();
+      val.slice(0,10).forEach((v,i) => { base[i] = { name: v.name||'', amount: v.amount||'' }; });
+      return base;
+    }
+    if(typeof val === 'string' && val.trim()){
+      // 旧フォーマット: 1行ずつ品目として分割
+      const base = emptyMeal();
+      val.trim().split('\n').filter(l=>l.trim()).slice(0,10).forEach((line,i)=>{
+        const m = line.match(/^(.+?)\s+([\d\.]+[gGmlML枚個杯本皿食分人前kgKg]+)$/);
+        if(m) base[i] = { name: m[1].trim(), amount: m[2].trim() };
+        else   base[i] = { name: line.trim(), amount: '' };
+      });
+      return base;
+    }
+    return emptyMeal();
+  };
+  return {
+    breakfast: convert(meals.breakfast),
+    lunch:     convert(meals.lunch),
+    dinner:    convert(meals.dinner),
+    snack:     convert(meals.snack || meals.note)  // noteキーの後方互換
+  };
+}
+
+// 品目配列 → GAS送信用テキスト
+function mealToText(items){
+  if(!items) return '';
+  return items.filter(i=>i.name&&i.name.trim()).map(i=>i.amount?`${i.name} ${i.amount}`:i.name).join('\n');
+}
+
+// タブ切替時にDOMから現在の値を読み取って保存
+function readMealItemsFromDOM(){
+  const tab = S.activeMealTab;
+  const nameEls   = document.querySelectorAll('.meal-item-name');
+  const amountEls = document.querySelectorAll('.meal-item-amount');
+  const items = S.meals[tab] || emptyMeal();
+  nameEls.forEach((el,i)=>{ if(items[i]) items[i].name   = el.value; });
+  amountEls.forEach((el,i)=>{ if(items[i]) items[i].amount = el.value; });
+  S.meals[tab] = items;
+}
+
+// 食事タブ切替
+function switchMealTab(tab){
+  readMealItemsFromDOM();
+  S.activeMealTab = tab;
+  document.querySelectorAll('.meal-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  renderMealItems();
+  updateMealTabHeader();
+}
+
+// タブヘッダー（アイコン・ラベル・バッジ）を更新
+function updateMealTabHeader(){
+  const tab  = S.activeMealTab;
+  const meta = MEAL_META[tab] || { icon:'🍽️', label:'食事' };
+  document.getElementById('active-meal-icon').textContent  = meta.icon;
+  document.getElementById('active-meal-label').textContent = meta.label;
+  const hasItems = (S.meals[tab]||[]).some(i=>i.name&&i.name.trim());
+  const badge = document.getElementById('active-meal-badge');
+  badge.style.display = hasItems ? '' : 'none';
+  const saveBtn = document.getElementById('meal-save-tab-btn');
+  if(saveBtn){ saveBtn.textContent = hasItems ? '✅ 保存済み' : '💾 この食事を保存'; saveBtn.classList.toggle('saved', hasItems); }
+  // タブボタンのdoneクラス（入力済みを示す）
+  document.querySelectorAll('.meal-tab-btn').forEach(b=>{
+    const t = b.dataset.tab;
+    b.classList.toggle('done', (S.meals[t]||[]).some(i=>i.name&&i.name.trim()));
+  });
+  // 朝食デフォルトヒント
+  const bfHint = document.getElementById('breakfast-default-hint');
+  if(bfHint) bfHint.style.display = (tab==='breakfast' && S.defaultBreakfast) ? '' : 'none';
+  const bfHintText = document.getElementById('breakfast-default-hint-text');
+  if(bfHintText) bfHintText.textContent = S.defaultBreakfast||'';
+}
+
+// 10行の品目入力欄をレンダリング
+function renderMealItems(){
+  const tab   = S.activeMealTab;
+  const items = S.meals[tab] || emptyMeal();
+  const ph    = MEAL_PLACEHOLDERS[tab] || [];
+  const list  = document.getElementById('meal-items-list');
+  if(!list) return;
+  list.innerHTML = items.map((item,i) => {
+    const nVal = (item.name||'').replace(/"/g,'&quot;');
+    const aVal = (item.amount||'').replace(/"/g,'&quot;');
+    return `<div class="meal-item-row">
+      <input class="meal-item-name${item.name?' filled':''}" type="text" placeholder="${ph[i]||'食品名'}" value="${nVal}" oninput="S.meals['${tab}'][${i}].name=this.value;this.classList.toggle('filled',!!this.value)">
+      <input class="meal-item-amount${item.amount?' filled':''}" type="text" placeholder="量" value="${aVal}" oninput="S.meals['${tab}'][${i}].amount=this.value;this.classList.toggle('filled',!!this.value)">
+    </div>`;
+  }).join('');
+}
+
+// 「この食事を保存」ボタン
+function saveMealTab(){
+  readMealItemsFromDOM();
+  scheduleSave();
+  updateMealTabHeader();
+  const tab = S.activeMealTab;
+  const label = MEAL_META[tab]?.label || '食事';
+  showToast(`💾 ${label}を保存しました`);
+}
+
+// デフォルト朝食を入力欄に適用
+function applyDefaultMeal(tab){
+  if(tab!=='breakfast' || !S.defaultBreakfast) return;
+  const items = migrateMeals({ breakfast: S.defaultBreakfast }).breakfast;
+  S.meals.breakfast = items;
+  renderMealItems();
+  showToast('💡 いつもの朝食を入力しました');
+}
+
 function renderFoodTab(){
   const now=new Date();
   const WDAYS=['日','月','火','水','木','金','土'];
   document.getElementById('meal-date-header').textContent=`${now.getMonth()+1}月${now.getDate()}日（${WDAYS[now.getDay()]}）の食事記録`;
-
-  // 入力欄を現在の状態で更新
-  const bEl=document.getElementById('meal-breakfast');
-  const lEl=document.getElementById('meal-lunch');
-  const dEl=document.getElementById('meal-dinner');
-  const nEl=document.getElementById('meal-note');
-  bEl.value=S.meals.breakfast||'';
-  lEl.value=S.meals.lunch||'';
-  dEl.value=S.meals.dinner||'';
-  nEl.value=S.meals.note||'';
-
-  // 保存済みバッジ
-  document.getElementById('meal-breakfast-badge').style.display=S.meals.breakfast?'':'none';
-  document.getElementById('meal-lunch-badge').style.display=S.meals.lunch?'':'none';
-  document.getElementById('meal-dinner-badge').style.display=S.meals.dinner?'':'none';
-
-  // 入力済みボーダー
-  [['meal-breakfast',S.meals.breakfast],['meal-lunch',S.meals.lunch],['meal-dinner',S.meals.dinner],['meal-note',S.meals.note]].forEach(([id,val])=>{
-    document.getElementById(id).classList.toggle('filled',!!(val&&val.trim()));
-  });
-
-  // デフォルト朝食ヒント
-  const hint=document.getElementById('breakfast-default-hint');
-  const hintText=document.getElementById('breakfast-default-hint-text');
-  if(S.defaultBreakfast){
-    hint.style.display='';
-    hintText.textContent=S.defaultBreakfast;
-  } else {
-    hint.style.display='none';
-  }
-
-  // デフォルト昼食ヒント
-  const lunchHint=document.getElementById('lunch-default-hint');
-  const lunchHintText=document.getElementById('lunch-default-hint-text');
-  if(S.defaultLunch){
-    lunchHint.style.display='';
-    lunchHintText.textContent=S.defaultLunch;
-  } else {
-    lunchHint.style.display='none';
-  }
-
-  // デフォルト設定欄
+  renderMealItems();
+  updateMealTabHeader();
   document.getElementById('meal-breakfast-default').value=S.defaultBreakfast||'';
   document.getElementById('meal-lunch-default').value=S.defaultLunch||'';
-
-  // 保存済みの分析結果があれば再描画
   if(S.mealAnalysis){ renderNutritionCard(); }
   else { document.getElementById('nutrition-card').style.display='none'; }
 }
@@ -1315,20 +1400,19 @@ async function loadFoodPresets(){
   } catch(e){ console.warn('プリセット取得失敗:', e); }
 }
 
-// 保存ボタン：食事を保存してからGASでカロリー計算
+// 「全部まとめて分析する」ボタン
 async function saveMeals(){
-  S.meals.breakfast = document.getElementById('meal-breakfast').value;
-  S.meals.lunch     = document.getElementById('meal-lunch').value;
-  S.meals.dinner    = document.getElementById('meal-dinner').value;
-  S.meals.note      = document.getElementById('meal-note').value;
-
-  // まずFirestoreに食事テキストを保存
+  readMealItemsFromDOM();
   scheduleSave();
-  renderFoodTab();
+
+  const bf = mealToText(S.meals.breakfast);
+  const ln = mealToText(S.meals.lunch);
+  const dn = mealToText(S.meals.dinner);
+  const sn = mealToText(S.meals.snack);
 
   // 何も入力されていなければ計算しない
-  const hasInput = S.meals.breakfast||S.meals.lunch||S.meals.dinner||S.meals.note;
-  if(!hasInput){ showToast('🍽️ 食事記録を保存しました'); return; }
+  const hasInput = bf||ln||dn||sn;
+  if(!hasInput){ showToast('🍽️ 食事を入力してください'); return; }
 
   // ローディング表示
   const card = document.getElementById('nutrition-card');
@@ -1344,10 +1428,10 @@ async function saveMeals(){
       body: JSON.stringify({
         action    : 'analyzeMeals',
         date      : S.viewDate || S.today,
-        breakfast : S.meals.breakfast,
-        lunch     : S.meals.lunch,
-        dinner    : S.meals.dinner,
-        snack     : S.meals.note
+        breakfast : bf,
+        lunch     : ln,
+        dinner    : dn,
+        snack     : sn
       })
     });
     const json = await res.json();
@@ -1368,10 +1452,10 @@ async function saveMeals(){
         body: JSON.stringify({
           action    : 'saveMealLog',
           date      : S.viewDate || S.today,
-          breakfast : S.meals.breakfast,
-          lunch     : S.meals.lunch,
-          dinner    : S.meals.dinner,
-          snack     : S.meals.note,
+          breakfast : bf,
+          lunch     : ln,
+          dinner    : dn,
+          snack     : sn,
           analysis  : S.mealAnalysis
         })
       }).catch(()=>{});  // ログ保存の失敗はサイレントに無視
@@ -1547,14 +1631,20 @@ function applyPreset(presetId){
   const preset = S.foodPresets.find(p => p.id === presetId);
   if(!preset) return;
 
-  const idMap = { breakfast:'meal-breakfast', lunch:'meal-lunch', dinner:'meal-dinner', note:'meal-note' };
-  const el = document.getElementById(idMap[S.presetTarget]);
-  if(!el) return;
+  const tab   = S.presetTarget;
+  const items = S.meals[tab] || emptyMeal();
+  // 空の行を探して挿入、なければ最後の行に上書き
+  const emptyIdx = items.findIndex(i => !i.name || !i.name.trim());
+  if(emptyIdx >= 0){
+    items[emptyIdx] = { name: preset.name, amount: '' };
+  } else {
+    items[9] = { name: preset.name, amount: '' };
+  }
+  S.meals[tab] = items;
 
-  // 既存テキストがあれば改行して追記、なければそのまま入力
-  const current = el.value.trim();
-  el.value = current ? `${current}\n${preset.name}` : preset.name;
-  el.classList.add('filled');
+  // 現在表示中のタブなら即再描画
+  if(S.activeMealTab === tab) renderMealItems();
+
   closePresetModal();
   showToast(`✅ 「${preset.name}」を追加しました`);
 }
@@ -2250,38 +2340,7 @@ function setupListeners(){
   // Food tab
   document.getElementById('meal-save-btn').addEventListener('click', saveMeals);
   document.getElementById('meal-default-save-btn').addEventListener('click', saveDefaultMeals);
-  // 朝食デフォルトヒントをタップで自動入力
-  document.getElementById('breakfast-default-hint').addEventListener('click',()=>{
-    const bf=document.getElementById('meal-breakfast');
-    if(!bf.value.trim()){
-      bf.value=S.defaultBreakfast;
-      bf.classList.add('filled');
-    } else {
-      if(confirm('朝食欄にデフォルト内容を追記しますか？')){
-        bf.value=(bf.value.trim()+'\n'+S.defaultBreakfast).trim();
-        bf.classList.add('filled');
-      }
-    }
-  });
-  // 昼食デフォルトヒントをタップで自動入力
-  document.getElementById('lunch-default-hint').addEventListener('click',()=>{
-    const ln=document.getElementById('meal-lunch');
-    if(!ln.value.trim()){
-      ln.value=S.defaultLunch;
-      ln.classList.add('filled');
-    } else {
-      if(confirm('昼食欄にいつものお弁当内容を追記しますか？')){
-        ln.value=(ln.value.trim()+'\n'+S.defaultLunch).trim();
-        ln.classList.add('filled');
-      }
-    }
-  });
-  // input変化で filled クラス更新
-  ['meal-breakfast','meal-lunch','meal-dinner','meal-note'].forEach(id=>{
-    document.getElementById(id).addEventListener('input',function(){
-      this.classList.toggle('filled',!!(this.value.trim()));
-    });
-  });
+  // デフォルト朝食ヒントのクリックはapplyDefaultMeal()で処理（HTML側のonclick）
   // 日付ナビゲーション
   document.getElementById('date-nav-prev').addEventListener('click',()=>navigateDate(-1));
   document.getElementById('date-nav-next').addEventListener('click',()=>navigateDate(1));
