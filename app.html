@@ -381,6 +381,53 @@
     .meal-default-sub { font-size: 11px; color: #AAA; margin-bottom: 10px; line-height: 1.5; }
     .btn-meal-default-save { width: 100%; padding: 10px; border-radius: 10px; border: 1.5px solid #5B8DB8; background: transparent; color: #5B8DB8; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; }
     .btn-meal-default-save:active { background: #EEF4FB; }
+
+    /* ====== 栄養分析カード ====== */
+    .nutrition-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1.5px solid #D5EDDF; }
+    .nutrition-title { font-size: 12px; font-weight: 700; color: #52B788; margin-bottom: 12px; letter-spacing: 0.5px; }
+    .calorie-summary { display: flex; align-items: baseline; gap: 6px; margin-bottom: 2px; }
+    .calorie-num { font-size: 36px; font-weight: 800; color: #2D3436; line-height: 1; }
+    .calorie-unit { font-size: 14px; color: #888; font-weight: 500; }
+    .calorie-remain { font-size: 12px; color: #888; margin-bottom: 14px; }
+    .calorie-remain.over { color: #E67E22; font-weight: 600; }
+    .pfc-bars { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .pfc-row { display: flex; align-items: center; gap: 8px; }
+    .pfc-label { font-size: 12px; font-weight: 700; width: 20px; flex-shrink: 0; text-align: center; }
+    .pfc-bar-track { flex: 1; height: 10px; background: #F0F0F0; border-radius: 6px; overflow: hidden; }
+    .pfc-bar { height: 100%; border-radius: 6px; transition: width 0.7s ease; min-width: 4px; }
+    .pfc-bar.protein { background: #5B8DB8; }
+    .pfc-bar.fat     { background: #F4A261; }
+    .pfc-bar.carbs   { background: #52B788; }
+    .pfc-bar.over    { background: #E74C3C; }
+    .pfc-val { font-size: 11px; color: #888; width: 86px; flex-shrink: 0; text-align: right; white-space: nowrap; }
+    .nutrition-feedback { font-size: 13px; color: #2D3436; background: #F8F9FA; border-radius: 10px; padding: 10px 12px; line-height: 1.6; margin-bottom: 6px; }
+    .nutrition-partial { font-size: 11px; color: #AAA; text-align: center; padding-top: 2px; }
+    .nutrition-loading { text-align: center; padding: 20px; color: #AAA; font-size: 13px; }
+    .meal-analyze-btn { width: 100%; padding: 14px; border-radius: 12px; background: linear-gradient(135deg, #52B788, #3D9970); color: white; font-size: 15px; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 3px 10px rgba(82,183,136,0.3); }
+    .meal-analyze-btn:active { transform: scale(0.97); }
+    .meal-analyze-btn:disabled { background: #B2DFDB; box-shadow: none; cursor: default; }
+
+    /* ====== プリセット追加ボタン（各食事カード内） ====== */
+    .preset-add-btn { flex-shrink: 0; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1.5px solid #52B788; border-radius: 10px; background: white; color: #52B788; cursor: pointer; white-space: nowrap; }
+    .preset-add-btn:active { background: #F0FFF8; }
+
+    /* ====== プリセット選択モーダル ====== */
+    .preset-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: none; }
+    .preset-overlay.open { display: block; }
+    .preset-sheet { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: white; border-radius: 20px 20px 0 0; padding-bottom: 32px; z-index: 201; max-height: 72vh; display: flex; flex-direction: column; }
+    .preset-handle { width: 36px; height: 4px; background: #DDD; border-radius: 2px; margin: 12px auto 0; flex-shrink: 0; }
+    .preset-sheet-title { font-size: 15px; font-weight: 700; text-align: center; padding: 12px 16px 6px; flex-shrink: 0; }
+    .preset-cat-tabs { display: flex; gap: 6px; padding: 6px 12px 10px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; border-bottom: 1px solid #F0F0F0; }
+    .preset-cat-tabs::-webkit-scrollbar { display: none; }
+    .preset-cat-btn { flex-shrink: 0; padding: 5px 12px; font-size: 12px; border: 1.5px solid #ddd; border-radius: 20px; background: white; color: #666; cursor: pointer; }
+    .preset-cat-btn.active { background: #52B788; border-color: #52B788; color: white; font-weight: 700; }
+    .preset-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .preset-item { display: flex; align-items: center; padding: 13px 16px; border-bottom: 1px solid #F5F5F5; cursor: pointer; gap: 10px; }
+    .preset-item:active { background: #F0FFF8; }
+    .preset-item-info { flex: 1; min-width: 0; }
+    .preset-item-name { font-size: 14px; font-weight: 600; color: #2D3436; }
+    .preset-item-note { font-size: 11px; color: #AAA; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .preset-item-arrow { font-size: 18px; color: #CCC; flex-shrink: 0; }
   </style>
 </head>
 <body>
@@ -476,6 +523,7 @@
           <span class="meal-icon">🌅</span>
           <span class="meal-label">朝ごはん</span>
           <span class="meal-saved-badge" id="meal-breakfast-badge" style="display:none">✓ 保存済</span>
+          <button class="preset-add-btn" onclick="openPresetModal('breakfast')">＋ プリセット</button>
         </div>
         <div class="meal-default-hint" id="breakfast-default-hint" style="display:none">
           <div class="meal-default-hint-label">💡 いつもの朝食</div>
@@ -490,6 +538,7 @@
           <span class="meal-icon">☀️</span>
           <span class="meal-label">昼ごはん</span>
           <span class="meal-saved-badge" id="meal-lunch-badge" style="display:none">✓ 保存済</span>
+          <button class="preset-add-btn" onclick="openPresetModal('lunch')">＋ プリセット</button>
         </div>
         <div class="meal-default-hint" id="lunch-default-hint" style="display:none">
           <div class="meal-default-hint-label">🍱 いつものお弁当</div>
@@ -504,6 +553,7 @@
           <span class="meal-icon">🌙</span>
           <span class="meal-label">夕ごはん</span>
           <span class="meal-saved-badge" id="meal-dinner-badge" style="display:none">✓ 保存済</span>
+          <button class="preset-add-btn" onclick="openPresetModal('dinner')">＋ プリセット</button>
         </div>
         <textarea class="meal-input" id="meal-dinner" placeholder="例：鶏むね肉のソテー、野菜炒め、味噌汁..."></textarea>
       </div>
@@ -513,13 +563,20 @@
         <div class="meal-header">
           <span class="meal-icon">📝</span>
           <span class="meal-label">間食・メモ</span>
+          <button class="preset-add-btn" onclick="openPresetModal('note')">＋ プリセット</button>
         </div>
         <textarea class="meal-input" id="meal-note" placeholder="例：プロテインバー、コーヒー2杯、プロテイン..."></textarea>
       </div>
 
-      <!-- 保存ボタン -->
+      <!-- 保存＆分析ボタン -->
       <div class="meal-save-bar">
-        <button class="btn-primary" id="meal-save-btn">💾 今日の食事を保存する</button>
+        <button class="meal-analyze-btn" id="meal-save-btn">🔍 保存してカロリーを計算する</button>
+      </div>
+
+      <!-- 栄養分析カード（保存後に表示） -->
+      <div class="nutrition-card" id="nutrition-card" style="display:none">
+        <div class="nutrition-title">📊 カロリー分析</div>
+        <div id="nutrition-card-inner"></div>
       </div>
 
       <!-- デフォルト設定セクション -->
@@ -537,6 +594,22 @@
       </div>
     </div>
   </section>
+
+  <!-- プリセット選択モーダル -->
+  <div class="preset-overlay" id="preset-overlay" onclick="closePresetModal()">
+    <div class="preset-sheet" onclick="event.stopPropagation()">
+      <div class="preset-handle"></div>
+      <div class="preset-sheet-title">プリセットから追加</div>
+      <div class="preset-cat-tabs" id="preset-cat-tabs">
+        <button class="preset-cat-btn active" data-cat="すべて" onclick="filterPresets('すべて')">すべて</button>
+        <button class="preset-cat-btn" data-cat="朝食" onclick="filterPresets('朝食')">🌅 朝食</button>
+        <button class="preset-cat-btn" data-cat="昼食" onclick="filterPresets('昼食')">☀️ 昼食</button>
+        <button class="preset-cat-btn" data-cat="夕食" onclick="filterPresets('夕食')">🌙 夕食</button>
+        <button class="preset-cat-btn" data-cat="汎用" onclick="filterPresets('汎用')">📦 汎用</button>
+      </div>
+      <div class="preset-list" id="preset-list"></div>
+    </div>
+  </div>
 
   <!-- PLANK -->
   <section class="tab-content" id="tab-plank">
@@ -853,6 +926,11 @@ db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
 // ================================================================
 // 定数
 // ================================================================
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbylHlghEQtMC_4KWG3ejGtTbGkT7QgD4CaK6aH_PWQpybGJFHx4skIMahRezhdQ_rVk1g/exec';
+
+// 栄養目標（デフォルト値・後から設定変更可能にする想定）
+const NUTRITION_GOAL = { calories: 1800, protein: 90, fat: 50, carbs: 248 };
+
 const HOUR_PX    = 64;
 const WORK_TYPES = ['出勤','在宅','出張'];
 const DAY_TYPES  = ['出勤','在宅','休日','旅行','出張'];
@@ -958,6 +1036,10 @@ const S = {
   today:'', viewDate:'',  // viewDate: 現在表示中の日付（今日以外も可）
   dayType:'', planned:[], actual:[], journal:'', plankRecords:[],
   meals:{ breakfast:'', lunch:'', dinner:'', note:'' },
+  mealAnalysis: null,   // 最後に計算した栄養分析結果
+  foodPresets: [],      // GASから取得したプリセット一覧
+  presetTarget: '',     // プリセットモーダルで追加先の食事キー
+  presetCatFilter: 'すべて',
   calYear:0, calMonth:0, calDayTypes:{},
   statsYear:0, statsMonth:0,
   saveTimer:null, timers:{},
@@ -990,13 +1072,14 @@ async function loadDay(ds){
     const d=snap.data();
     S.dayType=d.dayType||''; S.planned=d.planned||[]; S.actual=d.actual||[]; S.journal=d.journal||''; S.plankRecords=d.plankRecords||[];
     S.meals=d.meals||{ breakfast:'', lunch:'', dinner:'', note:'' };
-  } else { S.dayType=''; S.planned=[]; S.actual=[]; S.journal=''; S.plankRecords=[]; S.meals={ breakfast:'', lunch:'', dinner:'', note:'' }; }
+    S.mealAnalysis=d.mealAnalysis||null;
+  } else { S.dayType=''; S.planned=[]; S.actual=[]; S.journal=''; S.plankRecords=[]; S.meals={ breakfast:'', lunch:'', dinner:'', note:'' }; S.mealAnalysis=null; }
 }
 async function saveDay(){
   const ds=S.viewDate||S.today;
   await db.collection('days').doc(ds).set({
     date:ds, dayType:S.dayType, planned:S.planned, actual:S.actual, journal:S.journal, plankRecords:S.plankRecords,
-    meals:S.meals,
+    meals:S.meals, mealAnalysis:S.mealAnalysis||null,
     updatedAt:firebase.firestore.FieldValue.serverTimestamp()
   },{merge:true});
 }
@@ -1206,16 +1289,205 @@ function renderFoodTab(){
   // デフォルト設定欄
   document.getElementById('meal-breakfast-default').value=S.defaultBreakfast||'';
   document.getElementById('meal-lunch-default').value=S.defaultLunch||'';
+
+  // 保存済みの分析結果があれば再描画
+  if(S.mealAnalysis){ renderNutritionCard(); }
+  else { document.getElementById('nutrition-card').style.display='none'; }
 }
 
-function saveMeals(){
-  S.meals.breakfast=document.getElementById('meal-breakfast').value;
-  S.meals.lunch=document.getElementById('meal-lunch').value;
-  S.meals.dinner=document.getElementById('meal-dinner').value;
-  S.meals.note=document.getElementById('meal-note').value;
+// GASからプリセット一覧を取得してキャッシュ
+async function loadFoodPresets(){
+  try {
+    const res = await fetch(`${GAS_URL}?action=getMealPresets`);
+    const json = await res.json();
+    if(json.presets) S.foodPresets = json.presets;
+  } catch(e){ console.warn('プリセット取得失敗:', e); }
+}
+
+// 保存ボタン：食事を保存してからGASでカロリー計算
+async function saveMeals(){
+  S.meals.breakfast = document.getElementById('meal-breakfast').value;
+  S.meals.lunch     = document.getElementById('meal-lunch').value;
+  S.meals.dinner    = document.getElementById('meal-dinner').value;
+  S.meals.note      = document.getElementById('meal-note').value;
+
+  // まずFirestoreに食事テキストを保存
   scheduleSave();
   renderFoodTab();
-  showToast('🍽️ 食事記録を保存しました');
+
+  // 何も入力されていなければ計算しない
+  const hasInput = S.meals.breakfast||S.meals.lunch||S.meals.dinner||S.meals.note;
+  if(!hasInput){ showToast('🍽️ 食事記録を保存しました'); return; }
+
+  // ローディング表示
+  const card = document.getElementById('nutrition-card');
+  const inner = document.getElementById('nutrition-card-inner');
+  card.style.display = '';
+  inner.innerHTML = '<div class="nutrition-loading">🤖 カロリーを計算中...</div>';
+  document.getElementById('meal-save-btn').disabled = true;
+
+  try {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },  // GASはapplication/jsonだとCORSエラーになるためtext/plainで送る
+      body: JSON.stringify({
+        action    : 'analyzeMeals',
+        date      : S.viewDate || S.today,
+        breakfast : S.meals.breakfast,
+        lunch     : S.meals.lunch,
+        dinner    : S.meals.dinner,
+        snack     : S.meals.note
+      })
+    });
+    const json = await res.json();
+
+    if(json.error){
+      inner.innerHTML = `<div class="nutrition-loading">⚠️ ${json.error}</div>`;
+      showToast('⚠️ カロリー計算に失敗しました');
+    } else {
+      S.mealAnalysis = json.analysis;
+      scheduleSave();  // 分析結果もFirestoreに保存
+      renderNutritionCard();
+      showToast('✅ カロリーを計算しました！');
+
+      // GASの食事ログシートにも保存
+      fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({
+          action    : 'saveMealLog',
+          date      : S.viewDate || S.today,
+          breakfast : S.meals.breakfast,
+          lunch     : S.meals.lunch,
+          dinner    : S.meals.dinner,
+          snack     : S.meals.note,
+          analysis  : S.mealAnalysis
+        })
+      }).catch(()=>{});  // ログ保存の失敗はサイレントに無視
+    }
+  } catch(e){
+    inner.innerHTML = '<div class="nutrition-loading">⚠️ 通信エラーが発生しました。もう一度試してください。</div>';
+    showToast('⚠️ 通信エラーが発生しました');
+  } finally {
+    document.getElementById('meal-save-btn').disabled = false;
+  }
+}
+
+// 栄養分析カードを描画
+function renderNutritionCard(){
+  const a = S.mealAnalysis;
+  if(!a) return;
+  const card  = document.getElementById('nutrition-card');
+  const inner = document.getElementById('nutrition-card-inner');
+  card.style.display = '';
+
+  const total  = a.totalCalories || 0;
+  const pfc    = a.pfc           || { protein:0, fat:0, carbs:0 };
+  const goal   = NUTRITION_GOAL;
+  const remain = goal.calories - total;
+
+  // カロリー残り表示
+  const remainText = remain >= 0
+    ? `目標まで あと ${remain} kcal`
+    : `目標を ${Math.abs(remain)} kcal オーバー`;
+  const remainClass = remain < 0 ? 'over' : '';
+
+  // PFCバー幅（100%上限、超過は赤）
+  function barStyle(actual, target){
+    const pct = Math.min(Math.round(actual / target * 100), 100);
+    const over = actual > target * 1.15;
+    return `width:${pct}%; ${over ? 'background:#E74C3C' : ''}`;
+  }
+
+  // 部分記録メモ
+  const partialMsg = a.isPartial
+    ? '<div class="nutrition-partial">※ 入力済みの食事から計算。記録が増えるたびに更新されます</div>'
+    : '';
+
+  inner.innerHTML = `
+    <div class="calorie-summary">
+      <span class="calorie-num">${total.toLocaleString()}</span>
+      <span class="calorie-unit">kcal</span>
+    </div>
+    <div class="calorie-remain ${remainClass}">${remainText}</div>
+    <div class="pfc-bars">
+      <div class="pfc-row">
+        <span class="pfc-label" style="color:#5B8DB8">P</span>
+        <div class="pfc-bar-track"><div class="pfc-bar protein" style="${barStyle(pfc.protein, goal.protein)}"></div></div>
+        <span class="pfc-val">${pfc.protein}g / 目標 ${goal.protein}g</span>
+      </div>
+      <div class="pfc-row">
+        <span class="pfc-label" style="color:#F4A261">F</span>
+        <div class="pfc-bar-track"><div class="pfc-bar fat" style="${barStyle(pfc.fat, goal.fat)}"></div></div>
+        <span class="pfc-val">${pfc.fat}g / 目標 ${goal.fat}g</span>
+      </div>
+      <div class="pfc-row">
+        <span class="pfc-label" style="color:#52B788">C</span>
+        <div class="pfc-bar-track"><div class="pfc-bar carbs" style="${barStyle(pfc.carbs, goal.carbs)}"></div></div>
+        <span class="pfc-val">${pfc.carbs}g / 目標 ${goal.carbs}g</span>
+      </div>
+    </div>
+    ${a.feedback ? `<div class="nutrition-feedback">${a.feedback}</div>` : ''}
+    ${partialMsg}
+  `;
+}
+
+// ====== プリセット選択モーダル ======
+
+function openPresetModal(targetMeal){
+  S.presetTarget = targetMeal;
+  S.presetCatFilter = 'すべて';
+  document.querySelectorAll('.preset-cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === 'すべて'));
+  renderPresetList();
+  document.getElementById('preset-overlay').classList.add('open');
+}
+
+function closePresetModal(){
+  document.getElementById('preset-overlay').classList.remove('open');
+}
+
+function filterPresets(cat){
+  S.presetCatFilter = cat;
+  document.querySelectorAll('.preset-cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+  renderPresetList();
+}
+
+function renderPresetList(){
+  const list = document.getElementById('preset-list');
+  const filtered = S.foodPresets.filter(p =>
+    S.presetCatFilter === 'すべて' || p.category === S.presetCatFilter
+  );
+
+  if(filtered.length === 0){
+    list.innerHTML = '<div class="nutrition-loading">プリセットがありません</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(p => `
+    <div class="preset-item" onclick="applyPreset('${p.id}')">
+      <div class="preset-item-info">
+        <div class="preset-item-name">${p.name}</div>
+        ${p.note ? `<div class="preset-item-note">${p.note}</div>` : ''}
+      </div>
+      <span class="preset-item-arrow">›</span>
+    </div>
+  `).join('');
+}
+
+function applyPreset(presetId){
+  const preset = S.foodPresets.find(p => p.id === presetId);
+  if(!preset) return;
+
+  const idMap = { breakfast:'meal-breakfast', lunch:'meal-lunch', dinner:'meal-dinner', note:'meal-note' };
+  const el = document.getElementById(idMap[S.presetTarget]);
+  if(!el) return;
+
+  // 既存テキストがあれば改行して追記、なければそのまま入力
+  const current = el.value.trim();
+  el.value = current ? `${current}\n${preset.name}` : preset.name;
+  el.classList.add('filled');
+  closePresetModal();
+  showToast(`✅ 「${preset.name}」を追加しました`);
 }
 
 // ================================================================
@@ -1956,7 +2228,7 @@ async function init(){
   const WDAYS=['日','月','火','水','木','金','土'];
   document.getElementById('header-date').textContent=`${now.getMonth()+1}月${now.getDate()}日（${WDAYS[now.getDay()]}）`;
   setupListeners();
-  try{ await Promise.all([loadDay(S.today), loadTemplatesFromFirestore(), loadDefaultBreakfast()]); } catch(e){ console.error(e); }
+  try{ await Promise.all([loadDay(S.today), loadTemplatesFromFirestore(), loadDefaultBreakfast(), loadFoodPresets()]); } catch(e){ console.error(e); }
   refreshDayType();
   refreshJournalBtn();
   renderTimeline();
