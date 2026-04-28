@@ -1392,9 +1392,63 @@ function renderNutritionCard(){
   const inner = document.getElementById('nutrition-card-inner');
   card.style.display = '';
 
-  const total  = a.totalCalories || 0;
-  const pfc    = a.pfc           || { protein:0, fat:0, carbs:0 };
-  const goal   = NUTRITION_GOAL;
+  const goal = NUTRITION_GOAL;
+
+  // ── 品目の数値から合計・小計を再計算（AIの矛盾した値を使わない）──
+  const mealLabels = { breakfast:'🌅 朝ごはん', lunch:'☀️ 昼ごはん', dinner:'🌙 夕ごはん', snack:'📝 間食' };
+  let calcTotal = 0, calcP = 0, calcF = 0, calcC = 0;
+  let detailHTML = '';
+  const r1 = v => Math.round(v * 10) / 10;  // 小数1桁に丸める
+
+  if(a.meals && a.meals.length > 0){
+    detailHTML = a.meals.map(meal => {
+      if(!meal.items || meal.items.length === 0) return '';
+      const label = mealLabels[meal.type] || meal.type;
+
+      // 品目から小計を計算
+      const subKcal = meal.items.reduce((s,i) => s + (Number(i.calories)||0), 0);
+      const subP    = r1(meal.items.reduce((s,i) => s + (Number(i.protein)||0), 0));
+      const subF    = r1(meal.items.reduce((s,i) => s + (Number(i.fat)||0), 0));
+      const subC    = r1(meal.items.reduce((s,i) => s + (Number(i.carbs)||0), 0));
+
+      calcTotal += subKcal;
+      calcP     += subP;
+      calcF     += subF;
+      calcC     += subC;
+
+      const rows = meal.items.map(item => `
+        <tr>
+          <td title="${item.name}">${item.name}</td>
+          <td>${item.amount||''}</td>
+          <td>${item.calories??'-'}</td>
+          <td>${item.protein??'-'}</td>
+          <td>${item.fat??'-'}</td>
+          <td>${item.carbs??'-'}</td>
+        </tr>`).join('');
+      return `
+        <div class="detail-meal-section">
+          <div class="detail-meal-label">${label}（${subKcal} kcal）</div>
+          <table class="detail-table">
+            <tr><th>食品名</th><th>量</th><th>kcal</th><th>P</th><th>F</th><th>C</th></tr>
+            ${rows}
+            <tr class="detail-subtotal">
+              <td>小計</td><td></td>
+              <td>${subKcal}</td>
+              <td>${subP}</td>
+              <td>${subF}</td>
+              <td>${subC}</td>
+            </tr>
+          </table>
+        </div>`;
+    }).join('');
+  }
+
+  // 品目データがあれば品目合計を優先、なければAIの値を使う
+  const total = calcTotal > 0 ? calcTotal : (a.totalCalories || 0);
+  const pfc   = calcTotal > 0
+    ? { protein: r1(calcP), fat: r1(calcF), carbs: r1(calcC) }
+    : (a.pfc || { protein:0, fat:0, carbs:0 });
+
   const remain = goal.calories - total;
 
   // カロリー残り表示
@@ -1414,41 +1468,6 @@ function renderNutritionCard(){
   const partialMsg = a.isPartial
     ? '<div class="nutrition-partial">※ 入力済みの食事から計算。記録が増えるたびに更新されます</div>'
     : '';
-
-  // 品目別内訳 HTML を組み立てる
-  const mealLabels = { breakfast:'🌅 朝ごはん', lunch:'☀️ 昼ごはん', dinner:'🌙 夕ごはん', snack:'📝 間食' };
-  let detailHTML = '';
-  if(a.meals && a.meals.length > 0){
-    detailHTML = a.meals.map(meal => {
-      if(!meal.items || meal.items.length === 0) return '';
-      const label = mealLabels[meal.type] || meal.type;
-      const rows = meal.items.map(item => `
-        <tr>
-          <td title="${item.name}">${item.name}</td>
-          <td>${item.amount||''}</td>
-          <td>${item.calories??'-'}</td>
-          <td>${item.protein??'-'}</td>
-          <td>${item.fat??'-'}</td>
-          <td>${item.carbs??'-'}</td>
-        </tr>`).join('');
-      const sub = meal.pfc || {};
-      return `
-        <div class="detail-meal-section">
-          <div class="detail-meal-label">${label}（${meal.calories??0} kcal）</div>
-          <table class="detail-table">
-            <tr><th>食品名</th><th>量</th><th>kcal</th><th>P</th><th>F</th><th>C</th></tr>
-            ${rows}
-            <tr class="detail-subtotal">
-              <td>小計</td><td></td>
-              <td>${meal.calories??0}</td>
-              <td>${sub.protein??0}</td>
-              <td>${sub.fat??0}</td>
-              <td>${sub.carbs??0}</td>
-            </tr>
-          </table>
-        </div>`;
-    }).join('');
-  }
 
   inner.innerHTML = `
     <div class="calorie-summary">
