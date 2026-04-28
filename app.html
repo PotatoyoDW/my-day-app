@@ -402,6 +402,17 @@
     .pfc-val { font-size: 11px; color: #888; width: 86px; flex-shrink: 0; text-align: right; white-space: nowrap; }
     .nutrition-feedback { font-size: 13px; color: #2D3436; background: #F8F9FA; border-radius: 10px; padding: 10px 12px; line-height: 1.6; margin-bottom: 6px; }
     .nutrition-partial { font-size: 11px; color: #AAA; text-align: center; padding-top: 2px; }
+    /* 品目別内訳 */
+    .nutrition-detail-toggle { width: 100%; background: none; border: none; padding: 8px 0 4px; font-size: 12px; color: #5B8DB8; cursor: pointer; text-align: center; }
+    .nutrition-detail { margin-top: 4px; }
+    .detail-meal-section { margin-bottom: 10px; }
+    .detail-meal-label { font-size: 11px; font-weight: 700; color: #888; margin-bottom: 4px; padding-bottom: 3px; border-bottom: 1px solid #F0F0F0; }
+    .detail-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .detail-table th { color: #AAA; font-weight: 500; padding: 2px 4px; text-align: right; }
+    .detail-table th:first-child { text-align: left; }
+    .detail-table td { padding: 3px 4px; border-bottom: 0.5px solid #F5F5F5; color: #555; text-align: right; }
+    .detail-table td:first-child { text-align: left; color: #2D3436; max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .detail-table tr.detail-subtotal td { font-weight: 600; color: #2D3436; border-top: 1px solid #E0E0E0; border-bottom: none; background: #FAFAFA; }
     .nutrition-loading { text-align: center; padding: 20px; color: #AAA; font-size: 13px; }
     .meal-analyze-btn { width: 100%; padding: 14px; border-radius: 12px; background: linear-gradient(135deg, #52B788, #3D9970); color: white; font-size: 15px; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 3px 10px rgba(82,183,136,0.3); }
     .meal-analyze-btn:active { transform: scale(0.97); }
@@ -926,7 +937,7 @@ db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
 // ================================================================
 // 定数
 // ================================================================
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbylHlghEQtMC_4KWG3ejGtTbGkT7QgD4CaK6aH_PWQpybGJFHx4skIMahRezhdQ_rVk1g/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwnXcHf36BhA0abarLrIXLSpr9_LIVqAWY_-VgDk3VGw3hn_f9Fc6lqBuQnS3PKeU4p2A/exec';
 
 // 栄養目標（デフォルト値・後から設定変更可能にする想定）
 const NUTRITION_GOAL = { calories: 1800, protein: 90, fat: 50, carbs: 248 };
@@ -1404,6 +1415,41 @@ function renderNutritionCard(){
     ? '<div class="nutrition-partial">※ 入力済みの食事から計算。記録が増えるたびに更新されます</div>'
     : '';
 
+  // 品目別内訳 HTML を組み立てる
+  const mealLabels = { breakfast:'🌅 朝ごはん', lunch:'☀️ 昼ごはん', dinner:'🌙 夕ごはん', snack:'📝 間食' };
+  let detailHTML = '';
+  if(a.meals && a.meals.length > 0){
+    detailHTML = a.meals.map(meal => {
+      if(!meal.items || meal.items.length === 0) return '';
+      const label = mealLabels[meal.type] || meal.type;
+      const rows = meal.items.map(item => `
+        <tr>
+          <td title="${item.name}">${item.name}</td>
+          <td>${item.amount||''}</td>
+          <td>${item.calories??'-'}</td>
+          <td>${item.protein??'-'}</td>
+          <td>${item.fat??'-'}</td>
+          <td>${item.carbs??'-'}</td>
+        </tr>`).join('');
+      const sub = meal.pfc || {};
+      return `
+        <div class="detail-meal-section">
+          <div class="detail-meal-label">${label}（${meal.calories??0} kcal）</div>
+          <table class="detail-table">
+            <tr><th>食品名</th><th>量</th><th>kcal</th><th>P</th><th>F</th><th>C</th></tr>
+            ${rows}
+            <tr class="detail-subtotal">
+              <td>小計</td><td></td>
+              <td>${meal.calories??0}</td>
+              <td>${sub.protein??0}</td>
+              <td>${sub.fat??0}</td>
+              <td>${sub.carbs??0}</td>
+            </tr>
+          </table>
+        </div>`;
+    }).join('');
+  }
+
   inner.innerHTML = `
     <div class="calorie-summary">
       <span class="calorie-num">${total.toLocaleString()}</span>
@@ -1429,6 +1475,10 @@ function renderNutritionCard(){
     </div>
     ${a.feedback ? `<div class="nutrition-feedback">${a.feedback}</div>` : ''}
     ${partialMsg}
+    ${detailHTML ? `
+      <button class="nutrition-detail-toggle" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none';this.textContent=this.textContent.includes('▼')?'▲ 品目別を隠す':'▼ 品目別の内訳を見る'">▼ 品目別の内訳を見る</button>
+      <div class="nutrition-detail" style="display:none">${detailHTML}</div>
+    ` : ''}
   `;
 }
 
