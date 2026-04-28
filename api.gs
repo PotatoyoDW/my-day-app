@@ -608,7 +608,7 @@ function analyzeMeals(data) {
       },
       payload: JSON.stringify({
         model      : 'claude-sonnet-4-6',  // 複雑なプロンプト対応のためSonnetを使用
-        max_tokens : 2000,
+        max_tokens : 800,
         system     : MEAL_SYSTEM_PROMPT,
         messages   : [{ role: 'user', content: userMessage }]
       }),
